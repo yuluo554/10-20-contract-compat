@@ -1,0 +1,77 @@
+{
+  "digest": "1d87c8973963f6888e81620ff48d21425079134dffd7eb97ca0402d3c883d5e2",
+  "inputs": {
+    "new": "r3-requiredness-new.avsc",
+    "old": "r3-requiredness-old.avsc"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "status",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "avro",
+    "ir_unsupported": [],
+    "meta": {
+      "field_count": 2,
+      "namespace": "example.invalid.contracts",
+      "record_aliases": []
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "avro",
+    "ir_unsupported": [],
+    "meta": {
+      "field_count": 1,
+      "namespace": "example.invalid.contracts",
+      "record_aliases": []
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  }
+}

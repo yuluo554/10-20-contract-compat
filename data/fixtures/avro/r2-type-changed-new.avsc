@@ -1,0 +1,16 @@
+{
+  "fields": [
+    {
+      "name": "order_id",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "name": "total_amount",
+      "type": "string"
+    }
+  ],
+  "name": "Order",
+  "namespace": "example.invalid.contracts",
+  "type": "record"
+}

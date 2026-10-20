@@ -1,0 +1,15 @@
+{
+  "fields": [
+    {
+      "aliases": [
+        "total_amount"
+      ],
+      "default": 0,
+      "name": "amount",
+      "type": "long"
+    }
+  ],
+  "name": "Order",
+  "namespace": "example.invalid.contracts",
+  "type": "record"
+}

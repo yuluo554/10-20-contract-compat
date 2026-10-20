@@ -73,3 +73,18 @@ def test_readme_version_line_matches_package():
     with open(README, "r", encoding="utf-8") as handle:
         text = handle.read()
     assert __version__ in text
+
+
+#: README 里出现的 fixture 路径（`data/fixtures/...`）。M1 之后它们必须**真的存在**：
+#: 文档写了一个不存在的示例路径，读者照抄就报"文件不存在"，而参数面反射门看不出来。
+FIXTURE_PATH = re.compile(r"(data/fixtures/[\w./-]+\.(?:pb|avsc|json))")
+
+
+def test_readme_fixture_paths_exist():
+    """M1 承诺：README 三条场景里点名的 fixture 必须有实物。"""
+    with open(README, "r", encoding="utf-8") as handle:
+        text = handle.read()
+    paths = sorted(set(FIXTURE_PATH.findall(text)))
+    assert paths, "README 里一条 fixture 路径都没抽到（示例被删了？）"
+    missing = [path for path in paths if not os.path.isfile(os.path.join(ROOT, path.replace("/", os.sep)))]
+    assert missing == [], "README 点名但磁盘缺失: %s" % missing

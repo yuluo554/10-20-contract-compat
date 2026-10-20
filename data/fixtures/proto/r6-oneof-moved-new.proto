@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package example.invalid.contracts;
+
+message Order {
+  optional string order_id = 1;
+  optional string card_token = 2;
+  optional string bank_ref = 3;
+  oneof payment {
+  }
+}

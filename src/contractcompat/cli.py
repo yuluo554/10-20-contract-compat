@@ -91,6 +91,11 @@ def build_parser():
         action="store_true",
         help="IR 存在不可表达构造时拒绝出结论（退出码 3）",
     )
+    parser.add_argument(
+        "--emit-ir",
+        action="store_true",
+        help="只输出两侧归一后的 IR（规范 JSON，含 digest），不做判定；golden 生成器用它取真值",
+    )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "--strict-runtime-dependent",
@@ -153,7 +158,7 @@ def _run(args, stdout, stderr):
     policy.resolve_policy(args.policy, args.history)
     blast.validate_deploy_order(args.deploy_order)
 
-    # ② 解析（M2 落地具体映射；现在会明确报"尚未实现"而不是返回 0）
+    # ② 解析（M2 起三格式都接上；未实现的路径仍会明确报"尚未实现"而不是返回 0）
     old_ir = _parse(parsers, args.old, args.require_complete_ir)
     new_ir = _parse(parsers, args.new, args.require_complete_ir)
 
@@ -166,6 +171,11 @@ def _run(args, stdout, stderr):
         raise CapabilityError(
             "--require-complete-ir：IR 含 %d 处不可表达构造，拒绝出结论" % len(unsupported)
         )
+
+    # ②′ 只出 IR（golden 生成器唯一入口）：不判定、不出 findings，故与 policy 无关
+    if args.emit_ir:
+        _write(_render_ir(old_ir, new_ir, args.old, args.new), stdout)
+        return 0
 
     # ③ 判定 → 规则 → 归因 → 报告
     differences = policy.diff(old_ir, new_ir)
@@ -206,6 +216,24 @@ def _display_name(path):
     """报告里只写 basename——绝对路径会让 digest 跨机不可复算。"""
     normalized = path.replace("\\", "/")
     return normalized.rsplit("/", 1)[-1]
+
+
+def _render_ir(old_ir, new_ir, old_path, new_path):
+    """``--emit-ir`` 的唯一出口：规范 JSON + digest（经 ``canonical.dumps``，不自己序列化）。
+
+    形态固定为 ``{old, new, inputs, digest}``：两侧 IR 各自完整，``inputs`` 只写 basename。
+    这条产物是 M1 的 golden 输入面——**它是生产实现算出来的**，不是生成器自己算的。
+    """
+    from .canonical import DIGEST_KEY, digest
+    from .report import to_json
+
+    payload = {
+        "inputs": {"old": _display_name(old_path), "new": _display_name(new_path)},
+        "old": old_ir.to_json(),
+        "new": new_ir.to_json(),
+    }
+    payload[DIGEST_KEY] = digest(payload)
+    return to_json(payload)
 
 
 def _render_mapping(mapping):

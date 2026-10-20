@@ -1,0 +1,11 @@
+{
+  "fields": [
+    {
+      "name": "order_id",
+      "type": "string"
+    }
+  ],
+  "name": "Order",
+  "namespace": "example.invalid.contracts",
+  "type": "record"
+}

@@ -1,0 +1,97 @@
+{
+  "digest": "ab6dbeed33a613428ab38754aee9e58e50296d85334b9dd6a7100aac7012da22",
+  "inputs": {
+    "new": "r7-default-changed-new.json",
+    "old": "r7-default-changed-old.json"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": "/properties/order_id",
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": true,
+          "value": "PAID"
+        },
+        "enum_values": [],
+        "json_pointer": "/properties/status",
+        "name": "status",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "jsonschema",
+    "ir_unsupported": [],
+    "meta": {
+      "additional_properties": false,
+      "field_count": 2,
+      "required": [
+        "order_id"
+      ],
+      "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": "/properties/order_id",
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": true,
+          "value": "PENDING"
+        },
+        "enum_values": [],
+        "json_pointer": "/properties/status",
+        "name": "status",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "jsonschema",
+    "ir_unsupported": [],
+    "meta": {
+      "additional_properties": false,
+      "field_count": 2,
+      "required": [
+        "order_id"
+      ],
+      "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  }
+}

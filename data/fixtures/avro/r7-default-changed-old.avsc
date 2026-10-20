@@ -1,0 +1,16 @@
+{
+  "fields": [
+    {
+      "name": "order_id",
+      "type": "string"
+    },
+    {
+      "default": "PENDING",
+      "name": "status",
+      "type": "string"
+    }
+  ],
+  "name": "Order",
+  "namespace": "example.invalid.contracts",
+  "type": "record"
+}

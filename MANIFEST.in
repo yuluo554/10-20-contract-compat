@@ -4,6 +4,7 @@ include AGENTS.md
 include pyproject.toml
 include rules/rule-table.json
 recursive-include plan *.md
-recursive-include data *.json *.avsc *.proto *.pb *.md
+# data/ 是交付面：fixture（含 .pb 二进制）、golden、以及**生成器脚本**都要进源码包
+recursive-include data *.json *.avsc *.proto *.pb *.md *.py
 recursive-include tests *.py
 recursive-include tools *.py

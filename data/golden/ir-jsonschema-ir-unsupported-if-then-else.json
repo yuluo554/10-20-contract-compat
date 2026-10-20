@@ -1,0 +1,75 @@
+{
+  "digest": "7ab8e125af0ea9cdd9e9b527ff7ccacd2275a9729fec28216f9119bf3a9f7f2f",
+  "inputs": {
+    "new": "ir-unsupported-if-then-else-new.json",
+    "old": "ir-unsupported-if-then-else-old.json"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": "/properties/order_id",
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "jsonschema",
+    "ir_unsupported": [
+      {
+        "construct": "if",
+        "json_pointer": "/if",
+        "reason": "首期 IR 不建模 if/then/else 条件分支：需要约束求解，且会破坏「同一输入同一结论」的确定性"
+      }
+    ],
+    "meta": {
+      "additional_properties": false,
+      "field_count": 1,
+      "required": [
+        "order_id"
+      ],
+      "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": "/properties/order_id",
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "jsonschema",
+    "ir_unsupported": [],
+    "meta": {
+      "additional_properties": false,
+      "field_count": 1,
+      "required": [
+        "order_id"
+      ],
+      "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  }
+}

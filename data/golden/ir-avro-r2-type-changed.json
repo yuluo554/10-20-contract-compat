@@ -1,0 +1,91 @@
+{
+  "digest": "ff5d87a7144de6ad3daf9f7ae0b0ab9d11f5e2f57f006d4b61fa972d570eb24c",
+  "inputs": {
+    "new": "r2-type-changed-new.avsc",
+    "old": "r2-type-changed-old.avsc"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": true,
+          "value": ""
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "total_amount",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "avro",
+    "ir_unsupported": [],
+    "meta": {
+      "field_count": 2,
+      "namespace": "example.invalid.contracts",
+      "record_aliases": []
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": true,
+          "value": 0
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "total_amount",
+        "number": null,
+        "oneof_membership": null,
+        "type": "int"
+      }
+    ],
+    "format": "avro",
+    "ir_unsupported": [],
+    "meta": {
+      "field_count": 2,
+      "namespace": "example.invalid.contracts",
+      "record_aliases": []
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  }
+}

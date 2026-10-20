@@ -1,0 +1,94 @@
+{
+  "digest": "5d7900d0869e415316b3e09465418f9818ded40facc9b99f6c637a69f9009d9e",
+  "inputs": {
+    "new": "ir-unsupported-recursive-ref-new.json",
+    "old": "ir-unsupported-recursive-ref-old.json"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": "/properties/order_id",
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": "/properties/root",
+        "name": "root",
+        "number": null,
+        "oneof_membership": null,
+        "type": "object"
+      }
+    ],
+    "format": "jsonschema",
+    "ir_unsupported": [
+      {
+        "construct": "recursive_ref",
+        "json_pointer": "/$defs/Node/properties/child/$ref",
+        "reason": "自引用/环引用 '#/$defs/Node'：不展开（会栈溢出），按不可表达登记"
+      },
+      {
+        "construct": "recursive_ref",
+        "json_pointer": "/properties/root/$ref",
+        "reason": "自引用/环引用 '#/$defs/Node'：不展开（会栈溢出），按不可表达登记"
+      }
+    ],
+    "meta": {
+      "additional_properties": false,
+      "field_count": 2,
+      "required": [
+        "order_id"
+      ],
+      "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": "/properties/order_id",
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "jsonschema",
+    "ir_unsupported": [],
+    "meta": {
+      "additional_properties": false,
+      "field_count": 1,
+      "required": [
+        "order_id"
+      ],
+      "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  }
+}

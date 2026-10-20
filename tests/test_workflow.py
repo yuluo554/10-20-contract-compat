@@ -31,15 +31,27 @@ def test_single_job_with_expected_step_count():
     jobs = document.get("jobs") or {}
     assert list(jobs) == ["test"]
     steps = jobs["test"]["steps"]
-    # 6 个显式步骤 + checkout + setup = 7；数字变了要同轮更新本条（防"顺手删掉一条门"）
-    assert len(steps) == 7
+    # 7 个显式步骤 + checkout + setup = 9；数字变了要同轮更新本条（防"顺手删掉一条门"）
+    assert len(steps) == 9
     assert [step.get("name") for step in steps if step.get("name")] == [
         "Install (editable + dev extras)",
         "Sprint layout gate (methodology binding)",
         "Unit tests",
+        "Fixture regenerate check (bit-level, .pb is binary)",
+        "Golden regenerate check (byte-level, CLI-only generator)",
         "CLI smoke (console script)",
         "CLI smoke (module path, the other entry)",
     ]
+
+
+def test_reproducibility_gates_are_wired_into_ci():
+    """fixture / golden 的复算门必须在 CI 里**单独成步**。
+
+    只放在 pytest 里不够：缺 protobuf 时测试会 skip，而 skip 与 pass 在日志里长得一样。
+    """
+    run_steps = [step.get("run", "") for step in load()["jobs"]["test"]["steps"]]
+    assert any("gen_fixtures.py --check" in run for run in run_steps)
+    assert any("gen_golden.py --check" in run for run in run_steps)
 
 
 def test_layout_gate_is_wired_into_ci():

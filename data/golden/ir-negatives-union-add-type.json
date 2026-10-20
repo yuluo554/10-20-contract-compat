@@ -1,0 +1,91 @@
+{
+  "digest": "14d866632e38bd966ed70a5d272f304bd276f72a33f242fc6803083dc73ce14c",
+  "inputs": {
+    "new": "union-add-type-new.avsc",
+    "old": "union-add-type-old.avsc"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "nullable",
+        "default": {
+          "present": true,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "total_amount",
+        "number": null,
+        "oneof_membership": null,
+        "type": "union(null,long,string)"
+      }
+    ],
+    "format": "avro",
+    "ir_unsupported": [],
+    "meta": {
+      "field_count": 2,
+      "namespace": "example.invalid.contracts",
+      "record_aliases": []
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "nullable",
+        "default": {
+          "present": true,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "total_amount",
+        "number": null,
+        "oneof_membership": null,
+        "type": "union(null,long)"
+      }
+    ],
+    "format": "avro",
+    "ir_unsupported": [],
+    "meta": {
+      "field_count": 2,
+      "namespace": "example.invalid.contracts",
+      "record_aliases": []
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$id": "https://example.invalid/contracts/order.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "order_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "STATUS_UNSPECIFIED",
+        "PENDING"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "order_id"
+  ],
+  "title": "Order",
+  "type": "object"
+}

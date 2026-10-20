@@ -1,0 +1,207 @@
+{
+  "digest": "2beae202c5092890369a7ff6d9535a0662c839458945dfb3f32c3575c581c024",
+  "inputs": {
+    "new": "r4-enum-narrowed-new.pb",
+    "old": "r4-enum-narrowed-old.pb"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": 1,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [
+          {
+            "name": "STATUS_UNSPECIFIED",
+            "number": 0
+          },
+          {
+            "name": "PENDING",
+            "number": 1
+          }
+        ],
+        "json_pointer": null,
+        "name": "status",
+        "number": 2,
+        "oneof_membership": null,
+        "type": "Status"
+      }
+    ],
+    "format": "proto",
+    "ir_unsupported": [],
+    "meta": {
+      "file": "order.proto",
+      "messages": [
+        {
+          "fields": [
+            {
+              "cardinality": "optional",
+              "default_present": false,
+              "default_value": null,
+              "enum_values": [],
+              "message": "Order",
+              "name": "order_id",
+              "number": 1,
+              "oneof": null,
+              "packed": false,
+              "type": "string",
+              "type_name": ""
+            },
+            {
+              "cardinality": "optional",
+              "default_present": false,
+              "default_value": null,
+              "enum_values": [
+                [
+                  "STATUS_UNSPECIFIED",
+                  0
+                ],
+                [
+                  "PENDING",
+                  1
+                ]
+              ],
+              "message": "Order",
+              "name": "status",
+              "number": 2,
+              "oneof": null,
+              "packed": false,
+              "type": "Status",
+              "type_name": ".example.invalid.contracts.Status"
+            }
+          ],
+          "name": "Order",
+          "oneofs": [],
+          "reserved_names": [],
+          "reserved_numbers": []
+        }
+      ],
+      "package": "example.invalid.contracts",
+      "syntax": "proto3"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": 1,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [
+          {
+            "name": "STATUS_UNSPECIFIED",
+            "number": 0
+          },
+          {
+            "name": "PENDING",
+            "number": 1
+          },
+          {
+            "name": "PAID",
+            "number": 2
+          }
+        ],
+        "json_pointer": null,
+        "name": "status",
+        "number": 2,
+        "oneof_membership": null,
+        "type": "Status"
+      }
+    ],
+    "format": "proto",
+    "ir_unsupported": [],
+    "meta": {
+      "file": "order.proto",
+      "messages": [
+        {
+          "fields": [
+            {
+              "cardinality": "optional",
+              "default_present": false,
+              "default_value": null,
+              "enum_values": [],
+              "message": "Order",
+              "name": "order_id",
+              "number": 1,
+              "oneof": null,
+              "packed": false,
+              "type": "string",
+              "type_name": ""
+            },
+            {
+              "cardinality": "optional",
+              "default_present": false,
+              "default_value": null,
+              "enum_values": [
+                [
+                  "STATUS_UNSPECIFIED",
+                  0
+                ],
+                [
+                  "PENDING",
+                  1
+                ],
+                [
+                  "PAID",
+                  2
+                ]
+              ],
+              "message": "Order",
+              "name": "status",
+              "number": 2,
+              "oneof": null,
+              "packed": false,
+              "type": "Status",
+              "type_name": ".example.invalid.contracts.Status"
+            }
+          ],
+          "name": "Order",
+          "oneofs": [],
+          "reserved_names": [],
+          "reserved_numbers": []
+        }
+      ],
+      "package": "example.invalid.contracts",
+      "syntax": "proto3"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  }
+}

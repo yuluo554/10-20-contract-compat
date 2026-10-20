@@ -1,0 +1,144 @@
+{
+  "digest": "4d00f8acc4892f404145e5d236d615563e4e4432d2c37adc4f9ac69e6f5155c9",
+  "inputs": {
+    "new": "r5-reserved-conflict-new.pb",
+    "old": "r5-reserved-conflict-old.pb"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": 1,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "total_amount",
+        "number": 2,
+        "oneof_membership": null,
+        "type": "int64"
+      }
+    ],
+    "format": "proto",
+    "ir_unsupported": [],
+    "meta": {
+      "file": "order.proto",
+      "messages": [
+        {
+          "fields": [
+            {
+              "cardinality": "optional",
+              "default_present": false,
+              "default_value": null,
+              "enum_values": [],
+              "message": "Order",
+              "name": "order_id",
+              "number": 1,
+              "oneof": null,
+              "packed": false,
+              "type": "string",
+              "type_name": ""
+            },
+            {
+              "cardinality": "optional",
+              "default_present": false,
+              "default_value": null,
+              "enum_values": [],
+              "message": "Order",
+              "name": "total_amount",
+              "number": 2,
+              "oneof": null,
+              "packed": false,
+              "type": "int64",
+              "type_name": ""
+            }
+          ],
+          "name": "Order",
+          "oneofs": [],
+          "reserved_names": [],
+          "reserved_numbers": [
+            2
+          ]
+        }
+      ],
+      "package": "example.invalid.contracts",
+      "syntax": "proto3"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": [
+      2
+    ]
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": 1,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "proto",
+    "ir_unsupported": [],
+    "meta": {
+      "file": "order.proto",
+      "messages": [
+        {
+          "fields": [
+            {
+              "cardinality": "optional",
+              "default_present": false,
+              "default_value": null,
+              "enum_values": [],
+              "message": "Order",
+              "name": "order_id",
+              "number": 1,
+              "oneof": null,
+              "packed": false,
+              "type": "string",
+              "type_name": ""
+            }
+          ],
+          "name": "Order",
+          "oneofs": [],
+          "reserved_names": [],
+          "reserved_numbers": [
+            2
+          ]
+        }
+      ],
+      "package": "example.invalid.contracts",
+      "syntax": "proto3"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": [
+      2
+    ]
+  }
+}

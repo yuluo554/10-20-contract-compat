@@ -108,10 +108,39 @@ def test_detect_format_proto_text(tmp_path):
     assert detect_format(path) == ("proto", "text")
 
 
+def _descriptor_bytes(name="order.proto", package="example.invalid", message="Order", field="order_id", number=1):
+    """造一份最小的 ``FileDescriptorSet`` 字节（**往返一致**，才可能被判别为描述符）。"""
+    pb = pytest.importorskip("google.protobuf.descriptor_pb2")
+    descriptor_set = pb.FileDescriptorSet()
+    file_proto = descriptor_set.file.add()
+    file_proto.name = name
+    file_proto.package = package
+    file_proto.syntax = "proto3"
+    message_proto = file_proto.message_type.add()
+    message_proto.name = message
+    field_proto = message_proto.field.add()
+    field_proto.name = field
+    field_proto.number = number
+    field_proto.label = 1
+    field_proto.type = 9
+    return descriptor_set.SerializeToString(deterministic=True)
+
+
 def test_detect_format_descriptor_by_content_not_extension(tmp_path):
-    """形态判别按内容：一个叫 .txt 的二进制描述符也要认出来（按扩展名分派会漏）。"""
-    path = write(tmp_path, "descriptor.txt", b"\x00\x01\x02not-text")
+    """形态判别按内容：一个叫 .txt 的描述符也要认出来（按扩展名分派会漏）。
+
+    用**真描述符**而不是随手几个字节：判据是"能往返序列化"，假字节会把
+    「判别器有没有被绕过」和「判别器是否过严」混在一起。
+    """
+    path = write(tmp_path, "descriptor.txt", _descriptor_bytes())
     assert detect_format(path) == ("proto", "descriptor")
+
+
+def test_detect_format_rejects_binary_garbage(tmp_path):
+    """二进制垃圾 ≠ 描述符：只判"能 ParseFromString"会把乱码说成合法输入。"""
+    path = write(tmp_path, "garbage.bin", b"\x00\x01\x02not-a-descriptor")
+    with pytest.raises(UsageError):
+        detect_format(path)
 
 
 def test_detect_format_missing_file_is_usage_error(tmp_path):
@@ -139,10 +168,30 @@ def test_parse_proto_text_requires_descriptor(tmp_path):
     assert "descriptor_set_out" in str(caught.value)
 
 
-def test_parse_avro_validates_shape_before_mapping(tmp_path):
-    path = write(tmp_path, "a.avsc", {"type": "record", "name": "Order", "fields": []})
-    with pytest.raises(NotImplementedError):
-        parse(path)  # M2 才接上映射；现在必须显式说"没实现"，不能返回空 IR
+def test_parse_avro_maps_record_to_ir(tmp_path):
+    """M2 起 Avro 真的映射成 IR：字段七项齐，且**无号**（Avro 无字段号，稳定路径是名字）。"""
+    path = write(
+        tmp_path,
+        "a.avsc",
+        {
+            "type": "record",
+            "name": "Order",
+            "fields": [
+                {"name": "order_id", "type": "string"},
+                {"name": "total_amount", "type": ["null", "long"], "default": None},
+            ],
+        },
+    )
+    ir = parse(path)
+    assert ir.format == "avro"
+    assert ir.name == "Order"
+    assert [field.name for field in ir.fields] == ["order_id", "total_amount"]
+    assert [field.number for field in ir.fields] == [None, None]
+    assert ir.fields[0].cardinality == "required"
+    assert ir.fields[1].cardinality == "nullable"
+    assert ir.fields[1].to_json()["default"] == {"present": True, "value": None}
+    # Avro 的稳定路径是字段名（不是数组下标）
+    assert ir.fields[0].stable_path() == "order_id"
 
 
 def test_parse_avro_rejects_non_record_top_level(tmp_path):

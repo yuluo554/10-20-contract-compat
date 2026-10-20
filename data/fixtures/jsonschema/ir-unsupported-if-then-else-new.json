@@ -1,0 +1,30 @@
+{
+  "$id": "https://example.invalid/contracts/order.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "else": {
+    "required": [
+      "status"
+    ]
+  },
+  "if": {
+    "required": [
+      "order_id"
+    ]
+  },
+  "properties": {
+    "order_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "order_id"
+  ],
+  "then": {
+    "required": [
+      "total_amount"
+    ]
+  },
+  "title": "Order",
+  "type": "object"
+}

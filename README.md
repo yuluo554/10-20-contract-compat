@@ -6,7 +6,12 @@
 
 `compat <old> <new> --policy backward` —— 两个文件、一条命令、零 registry、零网络、零 Kafka。
 
-**当前版本**：`0.1.0.dev0`（M0 骨架：参数面、退出码契约、规范报告层已可跑；三解析器与判定核在 M2–M5 落地）。
+**当前版本**：`0.1.0.dev0`（M0 骨架 + M1 数据先行：参数面、退出码契约、规范报告层、**三解析器与 `--emit-ir`**
+已可跑；方向性判定核 / 七类规则 / 归因在 M3–M5 落地，届时 `compat <old> <new>` 才出判定报告）。
+
+> 现在就能看的：`compat <old> <new> --emit-ir` 把三种格式归一到**同一份 IR（规范 JSON + digest）**；
+> `data/fixtures/` 有 19 对规则夹具 + 4 条反例 + 4 条不可表达用例，`data/golden/` 有 27 份 IR golden
+> （`py data/tools/gen_golden.py --check` 可逐字节复算）。判定与报告仍是"未实现 → 退出码 3"，**不返回 0**。
 
 ## 为什么需要它
 
@@ -45,7 +50,8 @@ compat --version
 
 ## 三个最小复现
 
-> 以下三条是**目标形态**（M5 完成后可跑；当前 M0 骨架只保证 `--help` / `--version` 与退出码契约）。
+> 以下三条是**目标形态**（M5 完成后可跑；当前 M1 只保证 `--help` / `--version` / `--emit-ir` 与退出码契约）。
+> 想在 M1 就看点真东西：把任意一条的最后换成 `--emit-ir`，得到的是三格式归一后的同一份 IR。
 
 **Avro**：删字段
 
@@ -97,8 +103,10 @@ compat a.avsc b.avsc --policy backward --deploy-order producers-first   # 砸新
 ## 开发
 
 ```bash
-py tools/check-sprint-layout.py     # 方法论布局门（任何新对话的第一件事）
-py -m pytest -q                     # 全量测试
+py tools/check-sprint-layout.py       # 方法论布局门（任何新对话的第一件事）
+py -m pytest -q                       # 全量测试（双解释器各 160 项）
+py data/tools/gen_fixtures.py --check # fixture 位级复算（.pb 是二进制，逐字节比）
+py data/tools/gen_golden.py --check   # IR golden 逐字节复算（生成器只调 CLI）
 ```
 
 本仓库遵循 `ai-tool-project-sprint` 方法论；计划文档在 `plan/`，判定口径的唯一权威在 `data/README.md` §四。
@@ -108,7 +116,7 @@ py -m pytest -q                     # 全量测试
 | 里程碑 | 状态 |
 |---|---|
 | M0 | ✅ 已完成（2026-10-20） |
-| M1 | ⬜ 未开始 |
+| M1 | ✅ 已完成（2026-10-20） |
 | M2 | ⬜ 未开始 |
 | M3 | ⬜ 未开始 |
 | M4 | ⬜ 未开始 |

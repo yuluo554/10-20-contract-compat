@@ -1,0 +1,23 @@
+{
+  "fields": [
+    {
+      "name": "order_id",
+      "type": "string"
+    },
+    {
+      "name": "status",
+      "type": {
+        "name": "Status",
+        "symbols": [
+          "STATUS_UNSPECIFIED",
+          "PENDING",
+          "PAID"
+        ],
+        "type": "enum"
+      }
+    }
+  ],
+  "name": "Order",
+  "namespace": "example.invalid.contracts",
+  "type": "record"
+}

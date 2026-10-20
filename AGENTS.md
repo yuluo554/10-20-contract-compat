@@ -35,6 +35,8 @@ py tools/check-sprint-layout.py     # 布局门；必须绿，红了先修布局
 
 - 本机（2026-10-20 实测）：`py -3.8` = 3.8.8、`py -3.12` = 3.12.10；`python` 是商店占位符，**用 `py`**。
   跑脚本一律 `py -X utf8`（中文控制台）。`node v24.15.0`、`gh 2.93.0`（已登录 yuluo554）。
-  本机**无 `protoc`**、**无 `protobuf` 包**（M1 首件事处理，见 `plan/04` §八）。
+  本机**无 `protoc`**（这条不变，`protoc` 只在验 exit 3 时需要）；**`protobuf` 已装**：
+  `py -3.12` → 7.36.2、`py -3.8` → 5.29.6（M1 装，两档产出的描述符字节逐字节相同）。
+  生成器/校验用：`py data/tools/gen_fixtures.py --check`、`py data/tools/gen_golden.py --check`。
 - 禁用：把"未执行"写成已完成；tag 之后改交付面代码；在测试里写死"当前仓库有 tag"这类检出形态判据。
 - 未接远端期间，CI 类 DoD 一律写"本地等价校验（未接远端，CI 待首推验证）"，**不得写"CI 绿"**。

@@ -1,0 +1,113 @@
+{
+  "digest": "2d961581859f7ca0379b5c7478da365be6f459522f58e5650a8723b77d78713f",
+  "inputs": {
+    "new": "r4-enum-narrowed-new.avsc",
+    "old": "r4-enum-narrowed-old.avsc"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [
+          {
+            "name": "STATUS_UNSPECIFIED",
+            "number": 0
+          },
+          {
+            "name": "PENDING",
+            "number": 1
+          }
+        ],
+        "json_pointer": null,
+        "name": "status",
+        "number": null,
+        "oneof_membership": null,
+        "type": "Status"
+      }
+    ],
+    "format": "avro",
+    "ir_unsupported": [],
+    "meta": {
+      "field_count": 2,
+      "namespace": "example.invalid.contracts",
+      "record_aliases": []
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [
+          {
+            "name": "STATUS_UNSPECIFIED",
+            "number": 0
+          },
+          {
+            "name": "PENDING",
+            "number": 1
+          },
+          {
+            "name": "PAID",
+            "number": 2
+          }
+        ],
+        "json_pointer": null,
+        "name": "status",
+        "number": null,
+        "oneof_membership": null,
+        "type": "Status"
+      }
+    ],
+    "format": "avro",
+    "ir_unsupported": [],
+    "meta": {
+      "field_count": 2,
+      "namespace": "example.invalid.contracts",
+      "record_aliases": []
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  }
+}

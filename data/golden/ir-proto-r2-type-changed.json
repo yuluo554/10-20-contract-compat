@@ -1,0 +1,163 @@
+{
+  "digest": "fb068a8580aa0c379f35e40f8cf3a6b0b7f8623a4f4ce308cc1527b615855b7e",
+  "inputs": {
+    "new": "r2-type-changed-new.pb",
+    "old": "r2-type-changed-old.pb"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": 1,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "total_amount",
+        "number": 2,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "proto",
+    "ir_unsupported": [],
+    "meta": {
+      "file": "order.proto",
+      "messages": [
+        {
+          "fields": [
+            {
+              "cardinality": "optional",
+              "default_present": false,
+              "default_value": null,
+              "enum_values": [],
+              "message": "Order",
+              "name": "order_id",
+              "number": 1,
+              "oneof": null,
+              "packed": false,
+              "type": "string",
+              "type_name": ""
+            },
+            {
+              "cardinality": "optional",
+              "default_present": false,
+              "default_value": null,
+              "enum_values": [],
+              "message": "Order",
+              "name": "total_amount",
+              "number": 2,
+              "oneof": null,
+              "packed": false,
+              "type": "string",
+              "type_name": ""
+            }
+          ],
+          "name": "Order",
+          "oneofs": [],
+          "reserved_names": [],
+          "reserved_numbers": []
+        }
+      ],
+      "package": "example.invalid.contracts",
+      "syntax": "proto3"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "order_id",
+        "number": 1,
+        "oneof_membership": null,
+        "type": "string"
+      },
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "total_amount",
+        "number": 2,
+        "oneof_membership": null,
+        "type": "int32"
+      }
+    ],
+    "format": "proto",
+    "ir_unsupported": [],
+    "meta": {
+      "file": "order.proto",
+      "messages": [
+        {
+          "fields": [
+            {
+              "cardinality": "optional",
+              "default_present": false,
+              "default_value": null,
+              "enum_values": [],
+              "message": "Order",
+              "name": "order_id",
+              "number": 1,
+              "oneof": null,
+              "packed": false,
+              "type": "string",
+              "type_name": ""
+            },
+            {
+              "cardinality": "optional",
+              "default_present": false,
+              "default_value": null,
+              "enum_values": [],
+              "message": "Order",
+              "name": "total_amount",
+              "number": 2,
+              "oneof": null,
+              "packed": false,
+              "type": "int32",
+              "type_name": ""
+            }
+          ],
+          "name": "Order",
+          "oneofs": [],
+          "reserved_names": [],
+          "reserved_numbers": []
+        }
+      ],
+      "package": "example.invalid.contracts",
+      "syntax": "proto3"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  }
+}

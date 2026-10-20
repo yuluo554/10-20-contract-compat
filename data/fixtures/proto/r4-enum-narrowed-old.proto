@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package example.invalid.contracts;
+
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  PENDING = 1;
+  PAID = 2;
+}
+
+message Order {
+  optional string order_id = 1;
+  optional Status status = 2;
+}

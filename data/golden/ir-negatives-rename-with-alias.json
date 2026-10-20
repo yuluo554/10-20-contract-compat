@@ -1,0 +1,65 @@
+{
+  "digest": "00c0759b10e2a3a7236273ef2fb6fb0332e6d139f2c264f9aba5c9a14f996960",
+  "inputs": {
+    "new": "rename-with-alias-new.avsc",
+    "old": "rename-with-alias-old.avsc"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [
+          "total_amount"
+        ],
+        "cardinality": "optional",
+        "default": {
+          "present": true,
+          "value": 0
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "amount",
+        "number": null,
+        "oneof_membership": null,
+        "type": "long"
+      }
+    ],
+    "format": "avro",
+    "ir_unsupported": [],
+    "meta": {
+      "field_count": 1,
+      "namespace": "example.invalid.contracts",
+      "record_aliases": []
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "optional",
+        "default": {
+          "present": true,
+          "value": 0
+        },
+        "enum_values": [],
+        "json_pointer": null,
+        "name": "total_amount",
+        "number": null,
+        "oneof_membership": null,
+        "type": "long"
+      }
+    ],
+    "format": "avro",
+    "ir_unsupported": [],
+    "meta": {
+      "field_count": 1,
+      "namespace": "example.invalid.contracts",
+      "record_aliases": []
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  }
+}

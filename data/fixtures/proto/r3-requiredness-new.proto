@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+package example.invalid.contracts;
+
+message Order {
+  optional string order_id = 1;
+  required string status = 2;
+}

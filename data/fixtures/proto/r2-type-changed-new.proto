@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package example.invalid.contracts;
+
+message Order {
+  optional string order_id = 1;
+  optional string total_amount = 2;
+}

@@ -1,0 +1,75 @@
+{
+  "digest": "67330fe242b2e750a645f0980b04759446a1382ba19074507f128b6b9393509b",
+  "inputs": {
+    "new": "ir-unsupported-dependent-schemas-new.json",
+    "old": "ir-unsupported-dependent-schemas-old.json"
+  },
+  "new": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": "/properties/order_id",
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "jsonschema",
+    "ir_unsupported": [
+      {
+        "construct": "dependentSchemas",
+        "json_pointer": "/dependentSchemas",
+        "reason": "首期 IR 不建模 dependentSchemas：无法在不做正则/依赖求解的前提下枚举其语义"
+      }
+    ],
+    "meta": {
+      "additional_properties": false,
+      "field_count": 1,
+      "required": [
+        "order_id"
+      ],
+      "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  },
+  "old": {
+    "fields": [
+      {
+        "aliases": [],
+        "cardinality": "required",
+        "default": {
+          "present": false,
+          "value": null
+        },
+        "enum_values": [],
+        "json_pointer": "/properties/order_id",
+        "name": "order_id",
+        "number": null,
+        "oneof_membership": null,
+        "type": "string"
+      }
+    ],
+    "format": "jsonschema",
+    "ir_unsupported": [],
+    "meta": {
+      "additional_properties": false,
+      "field_count": 1,
+      "required": [
+        "order_id"
+      ],
+      "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "Order",
+    "reserved_names": [],
+    "reserved_numbers": []
+  }
+}

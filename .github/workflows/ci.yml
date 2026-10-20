@@ -37,6 +37,11 @@ jobs:
         run: python tools/check-sprint-layout.py
       - name: "Unit tests"
         run: python -m pytest -q
+      # fixture/golden 的复算门单独成步：pytest 里若因缺 protobuf 跳过，日志和"通过"长得一样
+      - name: "Fixture regenerate check (bit-level, .pb is binary)"
+        run: python data/tools/gen_fixtures.py --check
+      - name: "Golden regenerate check (byte-level, CLI-only generator)"
+        run: python data/tools/gen_golden.py --check
       - name: "CLI smoke (console script)"
         run: compat --version
       - name: "CLI smoke (module path, the other entry)"

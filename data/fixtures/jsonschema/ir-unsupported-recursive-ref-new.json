@@ -1,0 +1,28 @@
+{
+  "$defs": {
+    "Node": {
+      "properties": {
+        "child": {
+          "$ref": "#/$defs/Node"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$id": "https://example.invalid/contracts/order.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "order_id": {
+      "type": "string"
+    },
+    "root": {
+      "$ref": "#/$defs/Node"
+    }
+  },
+  "required": [
+    "order_id"
+  ],
+  "title": "Order",
+  "type": "object"
+}
