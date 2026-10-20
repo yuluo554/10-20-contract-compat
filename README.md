@@ -6,8 +6,9 @@
 
 `compat <old> <new> --policy backward` —— 两个文件、一条命令、零 registry、零网络、零 Kafka。
 
-**当前版本**：`0.1.0.dev0`（M0 骨架 + M1 数据先行：参数面、退出码契约、规范报告层、**三解析器与 `--emit-ir`**
-已可跑；方向性判定核 / 七类规则 / 归因在 M3–M5 落地，届时 `compat <old> <new>` 才出判定报告）。
+**当前版本**：`0.1.0.dev0`（M0 骨架 + M1 数据先行 + M2 统一 IR 收口：参数面、退出码契约、规范报告层、
+**三解析器与 `--emit-ir`** 已可跑并逐项单测；方向性判定核 / 七类规则 / 归因在 M3–M5 落地，
+届时 `compat <old> <new>` 才出判定报告）。
 
 > 现在就能看的：`compat <old> <new> --emit-ir` 把三种格式归一到**同一份 IR（规范 JSON + digest）**；
 > `data/fixtures/` 有 19 对规则夹具 + 4 条反例 + 4 条不可表达用例，`data/golden/` 有 27 份 IR golden
@@ -104,7 +105,7 @@ compat a.avsc b.avsc --policy backward --deploy-order producers-first   # 砸新
 
 ```bash
 py tools/check-sprint-layout.py       # 方法论布局门（任何新对话的第一件事）
-py -m pytest -q                       # 全量测试（双解释器各 160 项）
+py -m pytest -q                       # 全量测试（双解释器各 215 项）
 py data/tools/gen_fixtures.py --check # fixture 位级复算（.pb 是二进制，逐字节比）
 py data/tools/gen_golden.py --check   # IR golden 逐字节复算（生成器只调 CLI）
 ```
@@ -117,7 +118,7 @@ py data/tools/gen_golden.py --check   # IR golden 逐字节复算（生成器只
 |---|---|
 | M0 | ✅ 已完成（2026-10-20） |
 | M1 | ✅ 已完成（2026-10-20） |
-| M2 | ⬜ 未开始 |
+| M2 | ✅ 已完成（2026-10-20） |
 | M3 | ⬜ 未开始 |
 | M4 | ⬜ 未开始 |
 | M5 | ⬜ 未开始 |

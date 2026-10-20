@@ -121,12 +121,26 @@ def _m2():
 
 @mutation("M3 把已 ✅ 的里程碑写回 plan/06 的缺口格", "LAYOUT.GAPS")
 def _m3():
+    """靶子由**表结构**定位，不写死某一行的文案。
+
+    写死文案会在文档改字后变成"锚点缺失"（M1 就踩过：G5 描述改了一句，本组直接崩）。
+    判据要的是"缺口行的关闭条件里出现已完成的里程碑"，所以取缺口表第一条数据行即可。
+    """
     rel = "plan/06-交付对标.md"
 
     def transform(text):
-        marker = "| G5 | 三解析器与判定核未实现（骨架期） | 当前只有参数面 | M2–M5 逐棒关闭 |"
-        assert marker in text, "锚点缺失"
-        return text.replace(marker, marker[:-1].rstrip() + " 已落地 M0 |")
+        lines = text.split("\n")
+        header = None
+        for index, line in enumerate(lines):
+            if line.startswith("|") and "缺口" in line:
+                header = index
+                break
+        assert header is not None, "锚点缺失：plan/06 找不到含『缺口』表头的表"
+        row = header + 2  # 跳过分隔行
+        assert row < len(lines) and lines[row].startswith("|"), "缺口表没有数据行"
+        assert "M0" not in lines[row], "选中的缺口行本来就提到 M0，变异证明不了判据"
+        lines[row] = lines[row].rstrip().rstrip("|").rstrip() + "；M0 已落地 |"
+        return "\n".join(lines)
 
     return mutate(rel, transform)
 

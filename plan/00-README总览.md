@@ -20,10 +20,11 @@
 | plan/05-里程碑.md | 每周可演示物、出口门、环境事实、风险预案 | ✅ v1（M0） |
 | plan/06-交付对标.md | 题面 §三/§四逐条落位、发布前检查清单 | ✅ v1（M0） |
 | plan/HANDOFF-M1.md | 第 1 棒（数据先行）交接快照 | ✅ M0 收尾产出 |
-| plan/HANDOFF-M2.md | 第 2 棒（统一 IR / 方向性判定核之前）交接快照 | ✅ M1 收尾产出 |
+| plan/HANDOFF-M2.md | 第 2 棒（统一 IR 收口）交接快照 | ✅ M1 收尾产出 |
+| plan/HANDOFF-M3.md | 第 3 棒（方向性判定核）交接快照 | ✅ M2 收尾产出 |
 | data/README.md | 依据查证记录（三态）/ 数据源可获取性 / 合成数据纪律 / 数值口径（唯一定义处） | ✅ v1 |
 | README.md | 面向使用者的首屏：一句话定位、三条最小复现、已占位工具覆盖表摘录 | ✅ 骨架版（M6 定稿） |
-| pyproject.toml / src/contractcompat/ / rules/ / tests/ | 可安装 CLI、五模块（参数面 + 退出码契约 + 三解析器已通；判定/规则/归因待 M3–M5）、规则表、测试 | ✅ M0 骨架 + M1 解析器 |
+| pyproject.toml / src/contractcompat/ / rules/ / tests/ | 可安装 CLI、五模块（参数面 + 退出码契约 + 三解析器已通并逐项单测；判定/规则/归因待 M3–M5）、规则表、测试（215 项） | ✅ M0 骨架 + M1–M2 解析器 |
 | tools/check-sprint-layout.py | 方法论布局门（8 组变异验证通过） | ✅ M0 |
 | tools/verify-layout-gate.py | 布局门的变异验证脚本（门自身的证伪） | ✅ M0 |
 | .github/workflows/ci.yml | CI 四腿矩阵（本地 YAML 解析通过，**未实跑**） | ✅ M0（待首推验证） |
@@ -66,6 +67,7 @@
 | 2026-10-20 | **规则表双份：仓库根为源、包内 `data/` 为镜像** | wheel 安装后仓库根的 `rules/` 不存在，判定仍必须可用；镜像由逐字节测试守住（干净 venv 装 wheel 已实测） |
 | 2026-10-20 | **骨架期未实现路径一律退出码 3**，绝不返回 0 | 返回 0 的空壳会把"没检查"读成"检查通过"（本 skill 明令禁止的形态） |
 | 2026-10-20 | **`.pb` fixture 用 `protobuf` 库程序化构造，不用 `protoc` 生成** | 本机无 protoc；程序化构造可入仓、可 `--check` 位级复现、CI 不装 protoc 也能跑全量 fixture。实测 py3.8（protobuf 5.29.6）与 py3.12（protobuf 7.36.2）产出的描述符**逐字节相同**。代价：protobuf 大版本若改序列化，`--check` 会红——这是**有意**的（漂移必须显眼） |
+| 2026-10-20 | **M2 只做"收口与证伪"，不改判定语义**：报告装配抽成 `cli._assemble_report`（判定阶段与 IR 阶段共用一条路径），`--require-complete-ir` 拒收时逐条点名构造；**不新增 `inconclusive` verdict** | `verdict` 只有 `compatible`/`breaking` 两值（`data/README.md` §4.1）——在 IR 阶段造第三值或渲染空 findings 的报告，会被读成"检查通过"。所以 M2 的 IR 阶段只做"拒 + 报构造名"，完整报告仍等 M3 判定核接上 |
 | 2026-10-20 | **M1 提前落地三解析器（IR 映射）**，因为 M1 的 golden 以 **IR 形态**存在 | 交付物必须是真值："IR 形态 golden"只能用真实解析结果产出；手写期望 IR 等于伪造。副作用：M2 的解析器部分已基本满足，HANDOFF-M2 已如实登记 M2 剩余面（报告侧 `ir_unsupported` 渲染路径 + 双跑断言 + 解析器单测补齐） |
 
 ### 弃选项（含理由）
@@ -91,7 +93,7 @@
 
 | 承诺项 | 素材来源 | 交付物内可达性 | 核验方式 | 状态 |
 |---|---|---|---|---|
-| 三格式归一 IR | `google.protobuf.descriptor_pb2`（`FileDescriptorProto`）/ Avro `.avsc` 纯 JSON / JSON Schema `dict` 树（✅ 规则语义已核，⬜ 逐条入库） | `compat <old> <new> --emit-ir`（规范 JSON：`{inputs, old, new, digest}`） | M1 三格式 fixture 解析出的 IR 与 `data/golden/ir-*.json` 逐字段一致（`tests/test_golden.py` 的 `--check` + 形态断言） | ✅ M1 |
+| 三格式归一 IR | `google.protobuf.descriptor_pb2`（`FileDescriptorProto`）/ Avro `.avsc` 纯 JSON / JSON Schema `dict` 树（✅ 规则语义已核，⬜ 逐条入库） | `compat <old> <new> --emit-ir`（规范 JSON：`{inputs, old, new, digest}`） | M2：三格式 fixture 的 IR 七项逐项断言（`tests/test_parser_{avro,jsonschema,proto}.py`）+ 54 份 schema 输入双跑逐字节一致 + 与 `data/golden/ir-*.json` 逐字节一致（`gen_golden.py --check`） | ✅ M2 |
 | 方向性判定七档 | Confluent 官方档位语义（✅ 文档已核，见 CG-1778 引文） | `--policy` 参数 + `verdict` 字段 | M3 `data/golden/policy-*.json` 七档矩阵 | ⬜ M3 |
 | buf 四档映射 | buf 官方文档档位与规则名（✅） | `--explain-mapping` 输出表 | 测试断言映射表逐行存在且含"只表达最接近、不宣称等价"字样 | ⬜ M3 |
 | 七类破例规则 | 三格式规范语义（⬜ 逐条核对入库，不复制全文） | `findings[*].rule_id` | M4 每条规则三格式各一对 fixture 的 golden | ⬜ M4 |
@@ -113,7 +115,7 @@
 |---|---|---|---|
 | M0 | 出题定稿 + 计划套件 + 方法论装订 + 可运行骨架 | plan/00–06 齐且 `plan/00` 顶部有装订行；`AGENTS.md` 与布局门在位（8 组变异逐组变红）；`data/README.md` 口径落定；`pyproject.toml` + 包骨架 + `compat` 命令可跑；`--help`/`--version` 可用；退出码 2/3 路径真跑；CI workflow 本地 YAML 解析通过；双解释器 pytest 全绿 | ✅ 已完成（2026-10-20） |
 | M1 | **数据先行**：三格式 fixture + golden | `data/fixtures/{proto,avro,jsonschema}/` 每条规则 × 每种格式一对 old/new（21 格登记 21/21 = 18 对 + 3 格 N/A 结论）；**同一个"删字段"在三种格式下各一套 fixture**；golden 生成脚本 `--check` 位级一致（M1 只冻 **IR 形态**——七档判定 golden 顺延 M3，**未伪造**）；反例 4/4（"看起来破但不破"，如 Avro union 加类型） | ✅ 已完成（2026-10-20） |
-| M2 | 统一 IR | 三格式各 fixture 解析出同构 IR（字段名/字段号/类型/基数/默认值/enum 编号/reserved 七项齐全）；不可表达构造落 `ir_unsupported`；同机双跑逐字节一致 | ⬜ 未开始 |
+| M2 | 统一 IR | 三格式各 fixture 解析出同构 IR（字段名/字段号/类型/基数/默认值/enum 编号/reserved 七项齐全）；不可表达构造落 `ir_unsupported`；同机双跑逐字节一致 | ✅ 已完成（2026-10-20） |
 | M3 | 方向性判定核 | 七档 policy 全部可用；同一"删字段"三格式语义一致（backward 破 / forward 不破）；`--explain-mapping` 输出 buf 四档映射表；`*-transitive` 缺 `--history` 时退出码 2 | ⬜ 未开始 |
 | M4 | 破例规则库 | 七类规则三格式各有用例；`severity` 三值完整；`runtime-dependent` 带 `why_static_breaking` + `what_would_trigger` 两段；字段号复用（跨 message / 与 reserved 冲突）命中正确 | ⬜ 未开始 |
 | M5 | 归因与 CLI | `blast_radius` 随 `--deploy-order` 变化（四种顺序各断言）；`repair_action` 三格式语法落点正确；退出码 0/1/2/3 全覆盖；golden 逐字节；`--verify` 篡改可定位 | ⬜ 未开始 |

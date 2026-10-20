@@ -168,8 +168,11 @@ def _run(args, stdout, stderr):
     if args.require_complete_ir and unsupported:
         from .errors import CapabilityError
 
+        # IR 阶段就拒：**拒的同时必须就报**——只写"N 处"会让用户无从下手，
+        # 所以要逐条点名构造与指针（getsentry 的教训正是"未支持 = 静默忽略"）。
         raise CapabilityError(
-            "--require-complete-ir：IR 含 %d 处不可表达构造，拒绝出结论" % len(unsupported)
+            "--require-complete-ir：IR 含 %d 处不可表达构造，拒绝出结论\n%s"
+            % (len(unsupported), _describe_unsupported(unsupported))
         )
 
     # ②′ 只出 IR（golden 生成器唯一入口）：不判定、不出 findings，故与 policy 无关
@@ -185,13 +188,13 @@ def _run(args, stdout, stderr):
     findings, notes = blast.attribute(findings, args.deploy_order)
 
     mapping = policy.mapping_table() if args.explain_mapping else None
-    built = report.build(
+    built = _assemble_report(
         policy=args.policy,
         old_name=_display_name(args.old),
         new_name=_display_name(args.new),
+        unsupported=unsupported,
         findings=findings,
         notes=notes,
-        ir_unsupported=[item.to_json() for item in unsupported],
         verdict=verdict,
         mapping=mapping,
     )
@@ -210,6 +213,45 @@ def _parse(parsers, path, require_complete_ir):
         from .errors import CapabilityError
 
         raise CapabilityError(str(error))
+
+
+def _describe_unsupported(unsupported):
+    """逐条点名不可表达构造：`construct @ pointer — reason`（**就报**，不只报个数）。"""
+    return "\n".join(
+        "  - `%s` @ `%s` — %s" % (item.construct, item.json_pointer, item.reason)
+        for item in unsupported
+    )
+
+
+def _assemble_report(
+    policy,
+    old_name,
+    new_name,
+    unsupported=(),
+    findings=(),
+    notes=(),
+    verdict="compatible",
+    mapping=None,
+):
+    """装配报告对象（**判定阶段与 IR 阶段只用这一条路径**）。
+
+    ``unsupported`` 直接收 IR 侧的 ``Unsupported`` 对象：由 ``report.build`` 统一成
+    报告里的三键形态，本函数与渲染层都不做二次解释。M2 的判定核尚未接上，
+    普通命令还走不到这里；但"不可表达构造必须出现在报告里"的落点就在本函数，
+    所以它单独可测（见 ``tests/test_cli.py`` 的 IR 阶段装配用例）。
+    """
+    from . import report
+
+    return report.build(
+        policy=policy,
+        old_name=old_name,
+        new_name=new_name,
+        findings=findings,
+        notes=notes,
+        ir_unsupported=unsupported,
+        verdict=verdict,
+        mapping=mapping,
+    )
 
 
 def _display_name(path):

@@ -14,10 +14,16 @@ import os
 
 import pytest
 
-from contractcompat import __version__
-from contractcompat.canonical import DIGEST_KEY, digest, dumps
-from contractcompat.cli import _exit_code, build_parser, main
+from contractcompat import __version__, report
+from contractcompat.canonical import DIGEST_KEY, digest, dumps, loads
+from contractcompat.cli import _assemble_report, _exit_code, build_parser, main
+from contractcompat.parsers import parse as parse_schema
 from contractcompat.report import build
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+UNSUPPORTED_FIXTURE = os.path.join(
+    ROOT, "data", "fixtures", "jsonschema", "ir-unsupported-patternproperties-new.json"
+)
 
 
 def run(argv, tmp_path=None):
@@ -270,3 +276,42 @@ def test_report_counts_are_consistent():
     summary = report["summary"]
     assert summary["findings_total"] == 3
     assert summary["breaking"] + summary["runtime_dependent"] + summary["non_breaking"] == summary["findings_total"]
+
+
+# ── IR 阶段：不可表达构造的「拒 + 报」与报告装配 ─────────────────────────────
+
+
+def test_require_complete_ir_exits_three_and_names_each_construct():
+    """`--require-complete-ir` 真跑到退出码 3，且**拒的同时就报**（不只报个数）。"""
+    code, out, err = run([UNSUPPORTED_FIXTURE, UNSUPPORTED_FIXTURE, "--require-complete-ir"])
+    assert code == 3
+    assert "patternProperties" in err
+    assert "/patternProperties" in err  # 指针要能直接拿去定位
+    assert out == ""  # 失败路径零副作用：拒收时 stdout 一个字节都不写
+
+
+def test_ir_stage_report_assembly_renders_unsupported():
+    """报告装配走**判定阶段与 IR 阶段共用的那一条路径**，不可表达构造必须出现在两种输出里。
+
+    判定核还没接上（M3），所以这里直接给装配函数 IR 侧的对象——它正是 `_run` 在
+    普通路径上会传进去的同一个东西（`Unsupported` 序列）。
+    """
+    ir = parse_schema(UNSUPPORTED_FIXTURE)
+    built = _assemble_report(
+        "backward",
+        "order-old.json",
+        "order-new.json",
+        unsupported=ir.ir_unsupported,
+    )
+
+    markdown = report.render(built, "md")
+    assert "不可表达的构造（ir_unsupported）" in markdown
+    for item in ir.ir_unsupported:
+        assert item.construct in markdown
+        assert item.json_pointer in markdown
+        assert item.reason in markdown
+
+    payload = loads(report.render(built, "json"))
+    assert payload["summary"]["ir_unsupported"] == len(ir.ir_unsupported)
+    assert [row["construct"] for row in payload["ir_unsupported"]] == ["patternProperties"]
+    assert payload["ir_unsupported"][0]["json_pointer"] == "/patternProperties"
