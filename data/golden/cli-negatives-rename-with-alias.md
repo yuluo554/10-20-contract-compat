@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **compatible**
 - 输入: old=`rename-with-alias-old.avsc` ｜ new=`rename-with-alias-new.avsc`
-- tool: contractcompat 0.1.0.dev0
+- tool: contractcompat 0.1.0
 
 ## 判定表（2 条）
 
@@ -17,4 +17,4 @@
 - `R6` ONEOF_MOVED — avro：Avro 无 oneof 概念；union 分支移动按 R2/R4 归因
 
 ---
-digest: `5c2b1cdfb5356adf89458623aef555d31a3b46e968d7baff16e299874c0af018`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `23ffbb07ff1f939b401b455f87963a14f5ff0e027cbdbadb19ec3f7558e9cd53`（Markdown 是 JSON 的渲染视图，不参与 digest）

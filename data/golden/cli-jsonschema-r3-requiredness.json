@@ -1,5 +1,5 @@
 {
-  "digest": "ad4ce1229f0ebb63c04e5e1aaea26b3356f648e39358632bc230c652954cfd24",
+  "digest": "a2753f452af6abdeb255d76d4141cb27ddb80894ab5ae13483b8af032ebfa039",
   "findings": [
     {
       "blast_radius": "OLD_CONSUMER",
@@ -60,5 +60,5 @@
   },
   "tool": "contractcompat",
   "verdict": "compatible",
-  "version": "0.1.0.dev0"
+  "version": "0.1.0"
 }

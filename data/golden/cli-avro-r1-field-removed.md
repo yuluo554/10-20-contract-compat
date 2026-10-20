@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **breaking**
 - 输入: old=`r1-field-removed-old.avsc` ｜ new=`r1-field-removed-new.avsc`
-- tool: contractcompat 0.1.0.dev0
+- tool: contractcompat 0.1.0
 
 ## 判定表（3 条）
 
@@ -18,4 +18,4 @@
 - `R6` ONEOF_MOVED — avro：Avro 无 oneof 概念；union 分支移动按 R2/R4 归因
 
 ---
-digest: `12a1c27382bab9272c1a666c9147c15d8e4e92bf0a3df1a28e39c09e7cd78565`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `3d9e3e6c482f274f6176bb41906850a79db892e08fe05802a3ca59159ff249ed`（Markdown 是 JSON 的渲染视图，不参与 digest）

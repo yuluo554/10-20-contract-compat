@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **compatible**
 - 输入: old=`r4-enum-narrowed-old.json` ｜ new=`r4-enum-narrowed-new.json`
-- tool: contractcompat 0.1.0.dev0
+- tool: contractcompat 0.1.0
 
 ## 判定表（2 条）
 
@@ -16,4 +16,4 @@
 - `R5` FIELD_NUMBER_REUSED — jsonschema：JSON Schema 无字段号概念（按属性名寻址），本规则不适用
 
 ---
-digest: `2e281f4a134d34ed53f607f48d66af6311fdd53584f47963a6704d468a5ce23f`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `ddb8cd1d45cc1742ae32037944085f103fd8d289b2493681ef5f31d0337ff33f`（Markdown 是 JSON 的渲染视图，不参与 digest）

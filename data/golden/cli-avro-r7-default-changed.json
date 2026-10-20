@@ -1,5 +1,5 @@
 {
-  "digest": "b688f7597ad2874f4baa98bfd18e207f35ff768c891a53b23679f60171ad2d1b",
+  "digest": "ba6d972d61eb0f2e947d05195eaaaa533221ac53bb1336416b9deab9ce240a79",
   "findings": [
     {
       "blast_radius": null,
@@ -86,5 +86,5 @@
   },
   "tool": "contractcompat",
   "verdict": "compatible",
-  "version": "0.1.0.dev0"
+  "version": "0.1.0"
 }
