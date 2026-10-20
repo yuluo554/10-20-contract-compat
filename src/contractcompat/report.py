@@ -24,6 +24,8 @@ __all__ = [
     "to_markdown",
     "render",
     "verify_file",
+    "rebuild_report",
+    "verify_against_inputs",
 ]
 
 REPORT_SCHEMA_VERSION = 1
@@ -243,3 +245,55 @@ def verify_file(path):
         text = handle.read()
     report = loads(text)
     return verify_report(report, baseline=None)
+
+
+def rebuild_report(old_path, new_path, policy_name, deploy_order=None):
+    """用**生产实现**重放一遍判定，装配出 baseline 报告（供 verify 先比内容再比 digest）。
+
+    与 ``cli._run`` 的普通路径共用同一批模块调用（parsers → policy → rules → blast →
+    report.build）；本函数不渲染（verify 只需要规范 JSON 形态）。重放不是第二份实现，
+    "生成器与实现一起错"的形态被"baseline 由同一条代码路径现算"的结构排除。
+    """
+    from . import blast, parsers, policy, rules
+
+    old_ir = parsers.parse(old_path)
+    new_ir = parsers.parse(new_path)
+    unsupported = list(old_ir.ir_unsupported) + [
+        item for item in new_ir.ir_unsupported if item not in old_ir.ir_unsupported
+    ]
+    differences = policy.diff(old_ir, new_ir)
+    verdict = policy.judge(differences, policy_name)
+    findings = rules.evaluate(differences, rules.load_rule_table(), policy=policy_name)
+    findings, notes = blast.attribute(findings, blast.validate_deploy_order(deploy_order))
+    built = build(
+        policy=policy_name,
+        old_name=_basename(old_path),
+        new_name=_basename(new_path),
+        findings=findings,
+        notes=notes,
+        ir_unsupported=unsupported,
+        verdict=verdict,
+    )
+    return built
+
+
+def verify_against_inputs(report_path, old_path, new_path, policy_name, deploy_order=None):
+    """``--verify <report> --old/--new`` 的定位面：重放同一输入算 baseline，**先比内容再比
+    digest**——定位落到被改的叶子字段（如 ``findings[0].blast_radius``），而不是只说
+    "digest 不对"（那用户无从修起）。
+
+    ``deploy_order`` 参与重放：归因写在报告里，基线必须带上它才算同一份结论。
+    """
+    if not os.path.isfile(report_path):
+        raise UsageError("待校验报告不存在: %s" % report_path)
+    if not os.path.isfile(old_path) or not os.path.isfile(new_path):
+        raise UsageError("重放输入不存在：--old / --new 必须指向可读的 schema 文件")
+    with open(report_path, "r", encoding="utf-8-sig") as handle:
+        report = loads(handle.read())
+    baseline = rebuild_report(old_path, new_path, policy_name, deploy_order)
+    return verify_report(report, baseline=baseline)
+
+
+def _basename(path):
+    normalized = path.replace("\\", "/")
+    return normalized.rsplit("/", 1)[-1]

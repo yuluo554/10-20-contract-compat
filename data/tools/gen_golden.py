@@ -104,6 +104,23 @@ def policy_golden_name(directory, slug):
     return "policy-%s-%s.json" % (directory, slug)
 
 
+def cli_golden_name(directory, slug, fmt, order=None):
+    """端到端 golden 名：``cli-<dir>-<slug>.<md|json>``；四态四联追加 ``-order-<顺序>``。"""
+    base = "cli-%s-%s" % (directory, slug)
+    if order and order != CLI_DEFAULT_ORDER:
+        base += "-order-" + order
+    return "%s.%s" % (base, fmt)
+
+
+#: 每对夹具的端到端 golden 用的默认口径（policy 与被接受的"典型"部署顺序）。
+CLI_DEFAULT_POLICY = "backward"
+CLI_DEFAULT_ORDER = "consumers-first"
+
+#: 四态四联的样例：§4.6 点名的"删字段"。四种发布顺序各产出一份 md + json。
+FOUR_STATE_PAIR = ("proto", "r1-field-removed")
+FOUR_STATE_ORDERS = ("consumers-first", "producers-first", "simultaneous", "replay")
+
+
 def _run_cli(old_rel, new_rel, extra=()):
     """调用**生产 CLI**产出规范 JSON；返回 ``(exit_code, stdout_bytes, stderr_text)``。"""
     command = [
@@ -128,8 +145,36 @@ def _run_cli(old_rel, new_rel, extra=()):
     )
 
 
+def _cli_jobs(directory, slug):
+    """该配对的端到端 golden 任务：``[(名字, CLI 参数, 允许的退出码)]``。
+
+    普通报告路径的退出码由报告内容决定（breaking → 1、compatible → 0），**不是**生成失败；
+    允许集合就是退出码矩阵里"判定已完成"的两个值。2/3 说明输入/环境有问题，必须红。
+    """
+    jobs = []
+    base_extra = ("--policy", CLI_DEFAULT_POLICY, "--deploy-order", CLI_DEFAULT_ORDER)
+    jobs.append((cli_golden_name(directory, slug, "md"), base_extra, (0, 1)))
+    jobs.append(
+        (cli_golden_name(directory, slug, "json"), base_extra + ("--format", "json"), (0, 1))
+    )
+    if (directory, slug) == FOUR_STATE_PAIR:
+        for order in FOUR_STATE_ORDERS:
+            if order == CLI_DEFAULT_ORDER:
+                continue
+            extra = ("--policy", CLI_DEFAULT_POLICY, "--deploy-order", order)
+            jobs.append((cli_golden_name(directory, slug, "md", order), extra, (0, 1)))
+            jobs.append(
+                (
+                    cli_golden_name(directory, slug, "json", order),
+                    extra + ("--format", "json"),
+                    (0, 1),
+                )
+            )
+    return jobs
+
+
 def generate_into(target_dir, only=None):
-    """把每对 fixture 的 IR / policy golden 写进 ``target_dir``；返回 ``(written, failures)``。"""
+    """把每对 fixture 的 IR / policy / CLI golden 写进 ``target_dir``；返回 ``(written, failures)``。"""
     if not os.path.isdir(target_dir):
         os.makedirs(target_dir)
     pairs, problems = discover_pairs()
@@ -140,19 +185,21 @@ def generate_into(target_dir, only=None):
     for directory, slug, old_rel, new_rel in pairs:
         if only and only not in slug:
             continue
-        jobs = (
-            (golden_name(directory, slug), ("--emit-ir",)),
+        jobs = [
+            (golden_name(directory, slug), ("--emit-ir",), (0,)),
             (
                 policy_golden_name(directory, slug),
                 ("--emit-policy", "--history", old_rel),
+                (0,),
             ),
-        )
-        for name, extra in jobs:
+        ]
+        jobs.extend(_cli_jobs(directory, slug))
+        for name, extra, allowed_codes in jobs:
             code, stdout, stderr = _run_cli(old_rel, new_rel, extra)
-            if code != 0:
+            if code not in allowed_codes:
                 failures.append(
-                    "%s/%s 的 CLI 退出码 %d（不是 0）：%s"
-                    % (directory, slug, code, stderr.strip()[:200])
+                    "%s/%s 的 CLI 退出码 %d（允许 %s）：%s"
+                    % (directory, slug, code, "/".join(str(item) for item in allowed_codes), stderr.strip()[:200])
                 )
                 continue
             if not stdout:
@@ -175,7 +222,7 @@ def run_generate(only=None):
     keep = os.path.join(GOLDEN, ".gitkeep")
     if os.path.isfile(keep):
         os.remove(keep)
-    sys.stdout.write("已写入 %d 份 golden（IR + policy）到 data/golden/\n" % len(written))
+    sys.stdout.write("已写入 %d 份 golden（IR + policy + CLI）到 data/golden/\n" % len(written))
     return 0
 
 
@@ -193,7 +240,11 @@ def run_check(only=None):
         on_disk = set()
         if os.path.isdir(GOLDEN):
             for name in sorted(os.listdir(GOLDEN)):
-                if (name.startswith("ir-") or name.startswith("policy-")) and name.endswith(".json"):
+                if (
+                    name.startswith("ir-")
+                    or name.startswith("policy-")
+                    or name.startswith("cli-")
+                ) and name.endswith((".json", ".md")):
                     if only and only not in name:
                         continue
                     on_disk.add(name)

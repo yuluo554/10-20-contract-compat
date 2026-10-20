@@ -1,0 +1,65 @@
+{
+  "digest": "c22311e44467cd28fbf7b81e5ba8340fbc41424822ee902a8dc269d0209ee3db",
+  "findings": [
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "FORWARD_OK",
+      "evidence": {
+        "detail": null,
+        "format": "proto",
+        "kind": "field_removed",
+        "new": null,
+        "old": "int64",
+        "reason": "字段号 2 消失且未 reserved；老消费者读不到新数据里的该字段"
+      },
+      "format_evidence": "field_number_missing_without_reserved",
+      "repair_action": "reserve",
+      "repair_hint": "reserved 2;   // 保留字段号，避免被复用",
+      "rule_id": "R1",
+      "rule_name": "FIELD_REMOVED",
+      "severity": "breaking",
+      "stable_path": "2",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    },
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "NONE_OK",
+      "evidence": {
+        "detail": "cross_message_reuse",
+        "format": "proto",
+        "kind": "field_number_reused",
+        "new": "amount",
+        "old": "total_amount",
+        "reason": "字段号 2 从 message Order 退休后，被 message Refund 的 amount 复用（跨 message；旧号未 reserved）"
+      },
+      "format_evidence": "field_number_reused_across_messages",
+      "repair_action": "reserve",
+      "repair_hint": "reserved 2;   // 旧号永久保留，新字段用新号",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": "breaking",
+      "stable_path": "Order.2",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r5-cross-message-reuse-new.pb",
+    "old": "r5-cross-message-reuse-old.pb"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 2,
+    "findings_total": 2,
+    "ir_unsupported": 0,
+    "non_breaking": 0,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "breaking",
+  "version": "0.1.0.dev0"
+}

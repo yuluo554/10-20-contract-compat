@@ -1,0 +1,63 @@
+{
+  "digest": "5c2b1cdfb5356adf89458623aef555d31a3b46e968d7baff16e299874c0af018",
+  "findings": [
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "avro",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "Avro 无字段号概念（按字段名解析），本规则不适用"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    },
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "avro",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "Avro 无 oneof 概念；union 分支移动按 R2/R4 归因"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R6",
+      "rule_name": "ONEOF_MOVED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "rename-with-alias-new.avsc",
+    "old": "rename-with-alias-old.avsc"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 2,
+    "ir_unsupported": 0,
+    "non_breaking": 0,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

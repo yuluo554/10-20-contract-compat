@@ -1,0 +1,44 @@
+{
+  "digest": "18d05ff773933b6674ec412435924ffea255bee79475307ece9a50b386c98f5f",
+  "findings": [
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "BOTH_OK",
+      "evidence": {
+        "detail": null,
+        "format": "proto",
+        "kind": "oneof_moved",
+        "new": null,
+        "old": "payment",
+        "reason": "oneof 归属变化（payment → 无）"
+      },
+      "format_evidence": "field_entered_or_left_oneof",
+      "repair_action": "add-branch",
+      "repair_hint": "保留旧 oneof 成员，新增分支而不是移动",
+      "rule_id": "R6",
+      "rule_name": "ONEOF_MOVED",
+      "severity": "non-breaking",
+      "stable_path": "2",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r6-oneof-moved-new.pb",
+    "old": "r6-oneof-moved-old.pb"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 1,
+    "ir_unsupported": 0,
+    "non_breaking": 1,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

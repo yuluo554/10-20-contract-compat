@@ -1,0 +1,91 @@
+{
+  "digest": "6ca949e5554d3d16d140ea3d4e16d0203a290f4c8d3ab67cbe7d3a149dc999df",
+  "findings": [
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "BACKWARD_OK",
+      "evidence": {
+        "detail": null,
+        "format": "avro",
+        "kind": "enum_narrowed",
+        "new": [
+          "STATUS_UNSPECIFIED",
+          "PENDING"
+        ],
+        "old": [
+          "STATUS_UNSPECIFIED",
+          "PENDING",
+          "PAID"
+        ],
+        "reason": "enum 取值集合收窄（删除 PAID）；旧数据可能含被删取值"
+      },
+      "format_evidence": "symbol_removed",
+      "repair_action": "bump-and-version",
+      "repair_hint": "保留旧 symbol；如需收窄，先确认数据流中从未出现",
+      "rule_id": "R4",
+      "rule_name": "ENUM_NARROWED",
+      "severity": "non-breaking",
+      "stable_path": "status",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    },
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "avro",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "Avro 无字段号概念（按字段名解析），本规则不适用"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    },
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "avro",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "Avro 无 oneof 概念；union 分支移动按 R2/R4 归因"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R6",
+      "rule_name": "ONEOF_MOVED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r4-enum-narrowed-new.avsc",
+    "old": "r4-enum-narrowed-old.avsc"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 3,
+    "ir_unsupported": 0,
+    "non_breaking": 1,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

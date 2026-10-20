@@ -1,0 +1,50 @@
+{
+  "digest": "9bc33bd1f7fe44ea7148f464f1bb4b8b5c64726e4af8e1f642faa7e840406056",
+  "findings": [
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "BOTH_OK",
+      "evidence": {
+        "detail": null,
+        "format": "proto",
+        "kind": "default_changed",
+        "new": {
+          "present": true,
+          "value": "PAID"
+        },
+        "old": {
+          "present": true,
+          "value": "PENDING"
+        },
+        "reason": "默认值变化（'PENDING' → 'PAID'）；读写两侧都可解析，写侧语义变化需人工确认"
+      },
+      "format_evidence": "default_value_changed",
+      "repair_action": "add-default",
+      "repair_hint": "读侧兼容；写侧语义变化需在发布说明中标注",
+      "rule_id": "R7",
+      "rule_name": "DEFAULT_CHANGED",
+      "severity": "non-breaking",
+      "stable_path": "2",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r7-default-changed-new.pb",
+    "old": "r7-default-changed-old.pb"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 1,
+    "ir_unsupported": 0,
+    "non_breaking": 1,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

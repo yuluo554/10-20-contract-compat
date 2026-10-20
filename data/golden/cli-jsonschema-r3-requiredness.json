@@ -1,0 +1,64 @@
+{
+  "digest": "ad4ce1229f0ebb63c04e5e1aaea26b3356f648e39358632bc230c652954cfd24",
+  "findings": [
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "BACKWARD_OK",
+      "evidence": {
+        "detail": null,
+        "format": "jsonschema",
+        "kind": "cardinality_changed",
+        "new": "required",
+        "old": "optional",
+        "reason": "字段基数变化（optional → required）"
+      },
+      "format_evidence": "required_list_added",
+      "repair_action": "add-default",
+      "repair_hint": "从 \"required\" 移除，或同时给 \"default\"",
+      "rule_id": "R3",
+      "rule_name": "REQUIREDNESS_CHANGED",
+      "severity": "non-breaking",
+      "stable_path": "/properties/total_amount",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    },
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "jsonschema",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "JSON Schema 无字段号概念（按属性名寻址），本规则不适用"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r3-requiredness-new.json",
+    "old": "r3-requiredness-old.json"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 2,
+    "ir_unsupported": 0,
+    "non_breaking": 1,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

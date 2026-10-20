@@ -1,0 +1,64 @@
+{
+  "digest": "2ebae4a0fee54f657d98a383cd4d89798004aaac768f8057086092fa429275f3",
+  "findings": [
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "FORWARD_OK",
+      "evidence": {
+        "detail": null,
+        "format": "jsonschema",
+        "kind": "field_removed",
+        "new": null,
+        "old": "integer",
+        "reason": "属性 total_amount 从 properties 消失；旧数据多出的属性对新读者可忽略，新数据缺属性对老读者不可读"
+      },
+      "format_evidence": "property_absent_or_removed_from_required",
+      "repair_action": "reserve",
+      "repair_hint": "\"default\": {value}   // 或保留属性，避免老数据读不到",
+      "rule_id": "R1",
+      "rule_name": "FIELD_REMOVED",
+      "severity": "breaking",
+      "stable_path": "/properties/total_amount",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    },
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "jsonschema",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "JSON Schema 无字段号概念（按属性名寻址），本规则不适用"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r1-field-removed-new.json",
+    "old": "r1-field-removed-old.json"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 1,
+    "findings_total": 2,
+    "ir_unsupported": 0,
+    "non_breaking": 0,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "breaking",
+  "version": "0.1.0.dev0"
+}

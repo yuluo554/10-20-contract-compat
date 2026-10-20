@@ -1,0 +1,90 @@
+{
+  "digest": "b688f7597ad2874f4baa98bfd18e207f35ff768c891a53b23679f60171ad2d1b",
+  "findings": [
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "avro",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "Avro 无字段号概念（按字段名解析），本规则不适用"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    },
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "avro",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "Avro 无 oneof 概念；union 分支移动按 R2/R4 归因"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R6",
+      "rule_name": "ONEOF_MOVED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    },
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "BOTH_OK",
+      "evidence": {
+        "detail": null,
+        "format": "avro",
+        "kind": "default_changed",
+        "new": {
+          "present": true,
+          "value": "PAID"
+        },
+        "old": {
+          "present": true,
+          "value": "PENDING"
+        },
+        "reason": "默认值变化（'PENDING' → 'PAID'）；读写两侧都可解析，写侧语义变化需人工确认"
+      },
+      "format_evidence": "default_changed",
+      "repair_action": "add-default",
+      "repair_hint": "读侧兼容；写侧语义变化需在发布说明中标注",
+      "rule_id": "R7",
+      "rule_name": "DEFAULT_CHANGED",
+      "severity": "non-breaking",
+      "stable_path": "status",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r7-default-changed-new.avsc",
+    "old": "r7-default-changed-old.avsc"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 3,
+    "ir_unsupported": 0,
+    "non_breaking": 1,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

@@ -1,0 +1,51 @@
+{
+  "digest": "a1a17d25cdb2d3b75c680c5dc0942915d4ba83e02262f55eef5354130b10cc56",
+  "findings": [
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "BACKWARD_OK",
+      "evidence": {
+        "detail": null,
+        "format": "proto",
+        "kind": "enum_narrowed",
+        "new": [
+          "STATUS_UNSPECIFIED",
+          "PENDING"
+        ],
+        "old": [
+          "STATUS_UNSPECIFIED",
+          "PENDING",
+          "PAID"
+        ],
+        "reason": "enum 取值集合收窄（删除 PAID）；旧数据可能含被删取值"
+      },
+      "format_evidence": "enum_value_removed_or_renamed",
+      "repair_action": "bump-and-version",
+      "repair_hint": "保留旧枚举值并标 deprecated，或保留编号占位",
+      "rule_id": "R4",
+      "rule_name": "ENUM_NARROWED",
+      "severity": "non-breaking",
+      "stable_path": "2",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r4-enum-narrowed-new.pb",
+    "old": "r4-enum-narrowed-old.pb"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 1,
+    "ir_unsupported": 0,
+    "non_breaking": 1,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

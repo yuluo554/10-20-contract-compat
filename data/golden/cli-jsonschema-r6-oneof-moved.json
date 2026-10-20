@@ -1,0 +1,64 @@
+{
+  "digest": "92c86a09ebc53ee7a2f67a5a4756242b9f50a9733e3bc5727366367e5fa8be12",
+  "findings": [
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "jsonschema",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "JSON Schema 无字段号概念（按属性名寻址），本规则不适用"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    },
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "NONE_OK",
+      "evidence": {
+        "detail": null,
+        "format": "jsonschema",
+        "kind": "oneof_moved",
+        "new": "oneOf:boolean,integer",
+        "old": "oneOf:integer,string",
+        "reason": "oneof 归属变化（oneOf:integer,string → oneOf:boolean,integer）"
+      },
+      "format_evidence": "oneof_or_anyof_branch_moved",
+      "repair_action": "add-branch",
+      "repair_hint": "用 anyOf 同时接受新旧分支",
+      "rule_id": "R6",
+      "rule_name": "ONEOF_MOVED",
+      "severity": "runtime-dependent",
+      "stable_path": "/properties/payment",
+      "what_would_trigger": "当消息体中确实携带被移动的成员时才会失败；若该成员在当前流量中从不出现，则线上不会触发。",
+      "why_static_breaking": "字段的 oneof 归属改变；静态上按旧 schema 写入的消息与新 schema 的成员约束不一致。"
+    }
+  ],
+  "inputs": {
+    "new": "r6-oneof-moved-new.json",
+    "old": "r6-oneof-moved-old.json"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 2,
+    "ir_unsupported": 0,
+    "non_breaking": 0,
+    "runtime_dependent": 1
+  },
+  "tool": "contractcompat",
+  "verdict": "breaking",
+  "version": "0.1.0.dev0"
+}

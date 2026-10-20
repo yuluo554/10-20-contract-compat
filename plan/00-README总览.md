@@ -25,12 +25,12 @@
 | plan/HANDOFF-M4.md | 第 4 棒（破例规则库）交接快照 | ✅ M3 收尾产出 |
 | data/README.md | 依据查证记录（三态）/ 数据源可获取性 / 合成数据纪律 / 数值口径（唯一定义处） | ✅ v1 |
 | README.md | 面向使用者的首屏：一句话定位、三条最小复现、已占位工具覆盖表摘录 | ✅ 骨架版（M6 定稿） |
-| pyproject.toml / src/contractcompat/ / rules/ / tests/ | 可安装 CLI、五模块（参数面 + 退出码契约 + 三解析器 + 方向性判定核；规则/归因待 M4–M5）、规则表、测试（261 项） | ✅ M0 骨架 + M1–M3 |
+| pyproject.toml / src/contractcompat/ / rules/ / tests/ | 可安装 CLI、五模块（参数面 + 退出码契约 + 三解析器 + 方向性判定核 + 规则库 + 归因）、规则表、测试（357 项） | ✅ M0 骨架 + M1–M5 |
 | tools/check-sprint-layout.py | 方法论布局门（8 组变异验证通过） | ✅ M0 |
 | tools/verify-layout-gate.py | 布局门的变异验证脚本（门自身的证伪） | ✅ M0 |
 | .github/workflows/ci.yml | CI 四腿矩阵（本地 YAML 解析通过，**未实跑**） | ✅ M0（待首推验证） |
 | data/fixtures/{proto,avro,jsonschema,negatives}/ | 三格式最小 fixture：19 对规则夹具（21 格中 18 格有夹具 + 3 格 N/A 结论）+ 4 反例 + 4 不可表达 | ✅ M1 |
-| data/golden/ | IR 形态 golden ×27 + policy 判定 golden ×27 + 台账；端到端 golden 待 M5（如实标注，不伪造） | ✅ M1（IR）+ M3（policy） |
+| data/golden/ | IR 形态 golden ×28 + policy 判定 golden ×28 + 端到端 cli-*.md/json ×62 + 台账 | ✅ M1（IR）+ M3（policy）+ M5（端到端） |
 | data/tools/ | `gen_fixtures.py`（`.pb` 程序化构造 + `--check`）、`gen_golden.py`（只调 CLI + `--check`） | ✅ M1 |
 | plan/RELEASE-M6.md | 发布留档（tag 时点事实 / tag 后追加事实两栏） | ⬜ 待 M6 |
 | .gitignore | Python 标准模板 | ✅ M0（首提交） |
@@ -102,11 +102,11 @@
 | 七类破例规则 | 三格式规范语义（⬜ 逐条核对入库，不复制全文） | `findings[*].rule_id` | M4 `tests/test_rules.py` 逐格真跑命中（18 格 20 对）+ `test_severity.py` 三值 + `test_negatives.py` 4 反例无误报 | ✅ M4 |
 | `runtime-dependent` 三值语义 | HN-22411747 原话（✅）+ Confluent JSON Schema 自承（✅） | `findings[*].severity` + 两段说明 | M4：条目存在、两段说明在 md/json 两个出口、严格档退出码 1、`--ignore-runtime-dependent` 不删条目 | ✅ M4 |
 | 字段号复用检查（跨 message / 与 reserved 冲突） | buf 规则集未覆盖该格（✅ 已核官方规则名） | R5 命中记录 | M4：三种形态各一条用例（同 message 换主人 / reserved 冲突 / **跨 message**），后者由 `meta.messages` 文件级求值 | ✅ M4 |
-| "谁会炸"归因四态 | HN-21429460 事故原话（✅） | `blast_radius` + `--deploy-order` | M5 同一破例四种发布顺序的 golden 四联 | ⬜ M5 |
-| 最小修复动作 | 三格式语法落点（✅ 语法明确） | `repair_action` + 描述文本 | M5 三格式各一条 golden 修复文本 | ⬜ M5 |
-| CLI + 退出码矩阵 | 退出码定义唯一在 `data/README.md` §4.5 | `compat` 命令 | M5 0/1/2/3 各至少一条用例全跑到 | ⬜ M5 |
-| 报告 digest 与 `--verify` | 规范 JSON（固定键序、无时间戳/路径/主机名） | `digest` + `--verify` | M5 改一字节后非 0 且定位到被改字段；换时区 digest 不变 | ⬜ M5 |
-| golden 逐字节比对 | `data/golden/*.json` / `*.md` | CLI 输出 | M5 `--check` 全绿 | ⬜ M5 |
+| "谁会炸"归因四态 | HN-21429460 事故原话（✅） | `blast_radius` + `--deploy-order` | M5：`tests/test_blast.py` 四顺序各断言一次 + `tests/test_golden.py::test_four_state_quadruple_exists_and_differs` 的 golden 四联 | ✅ M5 |
+| 最小修复动作 | 三格式语法落点（✅ 语法明确） | `repair_action` + 描述文本 | M5：`tests/test_blast.py::test_r1_repair_hint_matches_format_syntax` 三格式各一条（文本取自规则表）；`cli-proto/avro/jsonschema-*.md` golden 落盘 | ✅ M5 |
+| CLI + 退出码矩阵 | 退出码定义唯一在 `data/README.md` §4.5 | `compat` 命令 | M5：0/1 在"四态归因 + 三值 severity"下补齐（`tests/test_cli.py`），2/3 沿用 M0–M4 证据 | ✅ M5 |
+| 报告 digest 与 `--verify` | 规范 JSON（固定键序、无时间戳/路径/主机名） | `digest` + `--verify` | M5：改 `blast_radius` 一字节 → 非 0 且 `json_path` 指到 `findings[0].blast_radius`（重放 baseline，`tests/test_cli.py`）；换时区 digest 不变 | ✅ M5 |
+| golden 逐字节比对 | `data/golden/*.json` / `*.md` | CLI 输出 | M5：`--check` 全绿（IR ×28 + policy ×28 + 端到端 cli-* ×62） | ✅ M5 |
 | README 三场景复现 | 三条最小命令 | `README.md` | M6 干净 clone 按 README 跑通三场景 | ⬜ M6 |
 | 已占位工具覆盖表 | 官方文档 / 仓库 README / `gh api` 快照（✅ 除星数会漂移） | `README.md` 首屏 | M6 逐行对 `data/README.md` §一 的来源表 | ⬜ M6 |
 
@@ -121,7 +121,7 @@
 | M2 | 统一 IR | 三格式各 fixture 解析出同构 IR（字段名/字段号/类型/基数/默认值/enum 编号/reserved 七项齐全）；不可表达构造落 `ir_unsupported`；同机双跑逐字节一致 | ✅ 已完成（2026-10-20） |
 | M3 | 方向性判定核 | 七档 policy 全部可用；同一"删字段"三格式语义一致（backward 破 / forward 不破）；`--explain-mapping` 输出 buf 四档映射表；`*-transitive` 缺 `--history` 时退出码 2；`policy-*.json` 七档矩阵 ×27 | ✅ 已完成（2026-10-20） |
 | M4 | 破例规则库 | 七类规则三格式各有用例；`severity` 三值完整；`runtime-dependent` 带 `why_static_breaking` + `what_would_trigger` 两段；字段号复用（跨 message / 与 reserved 冲突）命中正确 | ✅ 已完成（2026-10-20） |
-| M5 | 归因与 CLI | `blast_radius` 随 `--deploy-order` 变化（四种顺序各断言）；`repair_action` 三格式语法落点正确；退出码 0/1/2/3 全覆盖；golden 逐字节；`--verify` 篡改可定位 | ⬜ 未开始 |
+| M5 | 归因与 CLI | `blast_radius` 随 `--deploy-order` 变化（四种顺序各断言）；`repair_action` 三格式语法落点正确；退出码 0/1/2/3 全覆盖；golden 逐字节；`--verify` 篡改可定位 | ✅ 已完成（2026-10-20） |
 | M6 | 发布 | 干净环境按 README 跑通三场景；**`git tag` + GitHub Release（附产物：`git archive` 源码包 + `SHA256SUMS`，本地留副本）+ `plan/RELEASE-M6.md` 发布留档（tag 时点事实 / tag 后追加事实两栏）**；发布 GitHub **公开仓库**；收尾跑发布终态自检门（M6 同轮实现，落地前不在本表点名路径）无 FAIL | ⬜ 未开始 |
 
 ## 台账使用说明

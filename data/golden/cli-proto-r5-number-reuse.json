@@ -1,0 +1,44 @@
+{
+  "digest": "e4036514dc57095e2c4c3fe976876982701145fc063f3f715dfe30a79d43770b",
+  "findings": [
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "NONE_OK",
+      "evidence": {
+        "detail": null,
+        "format": "proto",
+        "kind": "field_number_reused",
+        "new": "status",
+        "old": "total_amount",
+        "reason": "字段号 2 换了主人（total_amount → status）；旧数据会被按新含义解释"
+      },
+      "format_evidence": "field_number_reused_or_conflicts_with_reserved",
+      "repair_action": "reserve",
+      "repair_hint": "reserved 2;   // 旧号永久保留，新字段用新号",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": "breaking",
+      "stable_path": "2",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r5-number-reuse-new.pb",
+    "old": "r5-number-reuse-old.pb"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 1,
+    "findings_total": 1,
+    "ir_unsupported": 0,
+    "non_breaking": 0,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "breaking",
+  "version": "0.1.0.dev0"
+}

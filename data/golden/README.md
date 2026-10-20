@@ -10,7 +10,12 @@
 |---|---|---|
 | `ir-<dir>-<slug>.json` × 28 | 规范 JSON：`{inputs, old, new, digest}`，两侧归一后的 IR | ✅ M1 冻结 |
 | `policy-<dir>-<slug>.json` × 28 | 规范 JSON：`{inputs, format, differences[], verdicts{}, history[], notes[], digest}`，**方向性事实 + 七档矩阵** | ✅ M3 冻结 |
-| `cli-*.md` / `cli-*.json`（端到端输出） | CLI 的 md 与 json 两种渲染 | ⬜ **待 M5 生成** |
+| `cli-<dir>-<slug>.{md,json}` × 56 | 端到端报告：`--policy backward --deploy-order consumers-first` 下 CLI 的 md 与 json 两种渲染，**承载三值 `severity` 与 `blast_radius`** | ✅ M5 冻结 |
+| `cli-proto-r1-field-removed-order-<顺序>.{md,json}` × 6 | **四态四联**的另三档：`producers-first` / `simultaneous` / `replay` 各一份 md + json（`consumers-first` 那档由上面的 56 份承载）；同一破例四种发布顺序归因不同 | ✅ M5 冻结 |
+
+**端到端 golden 的固定口径**：policy = `backward`、deploy-order = `consumers-first`（默认档）。
+报告退出码 0/1 都是"判定已完成"（compatible / breaking），生成器都接受；2/3 是输入或环境问题，必红。
+`severity` 从 M5 起由端到端 golden 承载；**policy golden 仍不含它**（那是规则库的维度）。
 
 **为什么 M3 的 policy golden 不含 `severity`**：方向（`direction`）是判定核的事实，七档 `verdict`
 是判定核的选择；`severity` 是 M4 规则库的第三维。现在把 severity 写进 golden，等于伪造 M4 的期望值。
@@ -26,10 +31,12 @@ M4 接上 `rules.evaluate` 后，端到端 golden（M5）才承载 severity。
 > §二 的"预期命中"列记的是**夹具的设计意图**（这条夹具是为了演哪条规则而造的），
 > 不是判定输出。M3 的判定输出已由 `policy-*.json` 落盘并登记在 §二·policy 台账。
 
-## 二、golden 台账（IR ×28 + policy ×28）
+## 二、golden 台账（IR ×28 + policy ×28 + CLI 端到端 ×62）
 
-> 这张表与磁盘**双向对账**：表里有而盘上没有 → 红；盘上有而表里没有 → 红
+> 这张表与磁盘**双向对账**（IR / policy 逐份点名）：表里有而盘上没有 → 红；盘上有而表里没有 → 红
 > （`tests/test_golden.py::test_readme_golden_table_is_bidirectional`）。
+> CLI 端到端 golden 按**配对数**对账（每对 2 份 md/json + 四态四联样例的另 3 档 ×2），
+> 名单由生成器现算，不逐份手抄（`tests/test_golden.py` 的 `cli_files()` 断言份数与名单闭合）。
 
 | golden 文件 | fixture slug | 目录 | 设计意图（演哪条规则） | 判定值 |
 |---|---|---|---|---|
@@ -111,7 +118,7 @@ M4 接上 `rules.evaluate` 后，端到端 golden（M5）才承载 severity。
 
 ```bash
 py data/tools/gen_fixtures.py --check   # fixture 位级一致（.pb 是二进制）
-py data/tools/gen_golden.py --check     # IR + policy golden 逐字节一致
+py data/tools/gen_golden.py --check     # IR + policy + CLI 端到端 golden 逐字节一致
 ```
 
 1. **产物形态**：入库文件能解析、`digest` 自洽、`inputs` 只写 basename（无绝对路径）；

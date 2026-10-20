@@ -1,0 +1,84 @@
+{
+  "digest": "12a1c27382bab9272c1a666c9147c15d8e4e92bf0a3df1a28e39c09e7cd78565",
+  "findings": [
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "FORWARD_OK",
+      "evidence": {
+        "detail": null,
+        "format": "avro",
+        "kind": "field_removed",
+        "new": null,
+        "old": "long",
+        "reason": "字段 total_amount 从新 schema 消失且无 alias 承接；旧数据进入新消费者时可被忽略，反向缺字段"
+      },
+      "format_evidence": "field_absent_or_renamed_without_alias",
+      "repair_action": "reserve",
+      "repair_hint": "\"aliases\": [\"total_amount\"]   // 改名时声明别名，旧数据仍可解析",
+      "rule_id": "R1",
+      "rule_name": "FIELD_REMOVED",
+      "severity": "breaking",
+      "stable_path": "total_amount",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    },
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "avro",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "Avro 无字段号概念（按字段名解析），本规则不适用"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    },
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "avro",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "Avro 无 oneof 概念；union 分支移动按 R2/R4 归因"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R6",
+      "rule_name": "ONEOF_MOVED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r1-field-removed-new.avsc",
+    "old": "r1-field-removed-old.avsc"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 1,
+    "findings_total": 3,
+    "ir_unsupported": 0,
+    "non_breaking": 0,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "breaking",
+  "version": "0.1.0.dev0"
+}

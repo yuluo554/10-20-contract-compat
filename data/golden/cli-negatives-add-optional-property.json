@@ -1,0 +1,43 @@
+{
+  "digest": "0bbf4c65ef5453a9a1b11331c9f22815096b75322e88316853d2f46d013fca62",
+  "findings": [
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "jsonschema",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "JSON Schema 无字段号概念（按属性名寻址），本规则不适用"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "add-optional-property-new.json",
+    "old": "add-optional-property-old.json"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 1,
+    "ir_unsupported": 0,
+    "non_breaking": 0,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

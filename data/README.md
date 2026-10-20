@@ -224,6 +224,19 @@
 - **不给 `--deploy-order` 时 `blast_radius` 为 `null`**，`notes` 写 `deploy_order_not_given`，**不猜、不给默认顺序**。
 - `REPLAY_ONLY` **只在显式给 `replay` 时出现**，不默认推断。
 
+**落地映射（`--deploy-order` → `blast_radius`，M5 起唯一实现）**：
+
+| `--deploy-order` | `blast_radius` | 版本偏差横在哪一侧 |
+|---|---|---|
+| `consumers-first` | `OLD_CONSUMER` | 老消费者仍在线上，读到新生产者写出的数据 |
+| `producers-first` | `NEW_CONSUMER` | 新消费者已上线，还在读老生产者写出的数据 |
+| `simultaneous` | `BOTH` | 两侧版本同时在位，两个方向都暴露 |
+| `replay` | `REPLAY_ONLY` | 只有历史数据重放时炸，实时流量不炸 |
+
+- `blast_radius` 回答"版本偏差落在谁身上"，`severity` 回答"这条会不会真炸"——两者是不同维度，不得互相替代（同 §4.1 对 `direction` / `verdict` / `severity` 的纪律）。
+- **N/A 行不归因**：`severity=None` 的行 `blast_radius` 保持 `null`——"该格式没有这个概念"不是"没人会炸"。
+- 三元组第三维在实现里的落点：`blast.ADDRESSABILITY` 登记三格式的可寻址性；不认识的格式**不猜**（`null` + `notes` 写 `format_not_addressable`）。三格式在已实现规则下都可按名/号寻址，因此这一维当前不改变上表的分配。
+
 ### 4.7 报告确定性口径
 
 - 规范 JSON：键序固定（按本文件 §4.x 顺序），差异项按 `(rule_id, stable_path)` 排序，`fields` 按 `(number 若存在, json_pointer, name)` 排序。

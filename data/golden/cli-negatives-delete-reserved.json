@@ -1,0 +1,22 @@
+{
+  "digest": "1d39ba5b6b9df12081b56a3d8a58fb5cd17e432709cdf46668354e683c0f91d6",
+  "findings": [],
+  "inputs": {
+    "new": "delete-reserved-new.pb",
+    "old": "delete-reserved-old.pb"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 0,
+    "ir_unsupported": 0,
+    "non_breaking": 0,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

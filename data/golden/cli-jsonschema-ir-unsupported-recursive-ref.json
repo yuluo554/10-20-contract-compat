@@ -1,0 +1,54 @@
+{
+  "digest": "6704ab953d0cf4bcd6b8cc7a1e3a86ca95dbba9d307dfa4307a3aa3534cab9c0",
+  "findings": [
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "jsonschema",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "JSON Schema 无字段号概念（按属性名寻址），本规则不适用"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "ir-unsupported-recursive-ref-new.json",
+    "old": "ir-unsupported-recursive-ref-old.json"
+  },
+  "ir_unsupported": [
+    {
+      "construct": "recursive_ref",
+      "json_pointer": "/$defs/Node/properties/child/$ref",
+      "reason": "自引用/环引用 '#/$defs/Node'：不展开（会栈溢出），按不可表达登记"
+    },
+    {
+      "construct": "recursive_ref",
+      "json_pointer": "/properties/root/$ref",
+      "reason": "自引用/环引用 '#/$defs/Node'：不展开（会栈溢出），按不可表达登记"
+    }
+  ],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 1,
+    "ir_unsupported": 2,
+    "non_breaking": 0,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

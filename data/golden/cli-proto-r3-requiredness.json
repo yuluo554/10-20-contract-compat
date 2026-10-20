@@ -1,0 +1,44 @@
+{
+  "digest": "844a6d291e283aaf126f96221b74a4d2fb2f6a441095a5e029b4a77f09fe8989",
+  "findings": [
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "BACKWARD_OK",
+      "evidence": {
+        "detail": null,
+        "format": "proto",
+        "kind": "cardinality_changed",
+        "new": "required",
+        "old": "optional",
+        "reason": "字段基数变化（optional → required）"
+      },
+      "format_evidence": "label_change_or_new_required_without_default",
+      "repair_action": "add-default",
+      "repair_hint": "新增字段标 optional 并给 default_value",
+      "rule_id": "R3",
+      "rule_name": "REQUIREDNESS_CHANGED",
+      "severity": "non-breaking",
+      "stable_path": "2",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r3-requiredness-new.pb",
+    "old": "r3-requiredness-old.pb"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 1,
+    "ir_unsupported": 0,
+    "non_breaking": 1,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

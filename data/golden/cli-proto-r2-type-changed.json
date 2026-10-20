@@ -1,0 +1,44 @@
+{
+  "digest": "ff42215d7aead082cf0abbb8296f5070b9739018f1a7412583d2a323e6b1e54e",
+  "findings": [
+    {
+      "blast_radius": "OLD_CONSUMER",
+      "direction": "NONE_OK",
+      "evidence": {
+        "detail": "wire_incompatible",
+        "format": "proto",
+        "kind": "type_changed",
+        "new": "string",
+        "old": "int32",
+        "reason": "字段类型变化（int32 → string）"
+      },
+      "format_evidence": "wire_incompatible_type_change",
+      "repair_action": "bump-and-version",
+      "repair_hint": "保留旧字段号与原类型，新增字段号承载新类型",
+      "rule_id": "R2",
+      "rule_name": "TYPE_CHANGED",
+      "severity": "breaking",
+      "stable_path": "2",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r2-type-changed-new.pb",
+    "old": "r2-type-changed-old.pb"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 1,
+    "findings_total": 1,
+    "ir_unsupported": 0,
+    "non_breaking": 0,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "breaking",
+  "version": "0.1.0.dev0"
+}

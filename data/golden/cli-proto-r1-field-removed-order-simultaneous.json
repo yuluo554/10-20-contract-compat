@@ -1,0 +1,44 @@
+{
+  "digest": "75e2fde89ce68b02625cd70a7d6287731ef731f4686db845347a85661799b99f",
+  "findings": [
+    {
+      "blast_radius": "BOTH",
+      "direction": "FORWARD_OK",
+      "evidence": {
+        "detail": null,
+        "format": "proto",
+        "kind": "field_removed",
+        "new": null,
+        "old": "int64",
+        "reason": "字段号 2 消失且未 reserved；老消费者读不到新数据里的该字段"
+      },
+      "format_evidence": "field_number_missing_without_reserved",
+      "repair_action": "reserve",
+      "repair_hint": "reserved 2;   // 保留字段号，避免被复用",
+      "rule_id": "R1",
+      "rule_name": "FIELD_REMOVED",
+      "severity": "breaking",
+      "stable_path": "2",
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "r1-field-removed-new.pb",
+    "old": "r1-field-removed-old.pb"
+  },
+  "ir_unsupported": [],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 1,
+    "findings_total": 1,
+    "ir_unsupported": 0,
+    "non_breaking": 0,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "breaking",
+  "version": "0.1.0.dev0"
+}

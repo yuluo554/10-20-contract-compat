@@ -7,15 +7,16 @@
 `compat <old> <new> --policy backward` —— 两个文件、一条命令、零 registry、零网络、零 Kafka。
 
 **当前版本**：`0.1.0.dev0`（M0 骨架 + M1 数据先行 + M2 统一 IR 收口 + M3 方向性判定核 +
-M4 破例规则库：参数面、退出码契约、规范报告层、三解析器、`--emit-ir`、七档 policy、
-**七类规则命中与三值 `severity`** 已可跑；归因（`blast_radius`）待 M5）。
+M4 破例规则库 + M5 归因与端到端报告：参数面、退出码契约、规范报告层、三解析器、`--emit-ir`、
+七档 policy、七类规则命中、三值 `severity`、**四态归因 `blast_radius`** 均已可跑）。
 
 > 现在就能看的：`compat <old> <new> --policy backward` 出**真判定**（`verdict` + 每条差异项的
-> `direction` + 命中规则的 `rule_id` / `severity` / 证据形态 / 修复动作）；`--emit-ir` 把三种格式
-> 归一到**同一份 IR（规范 JSON + digest）**；`--emit-policy` 导出方向事实与七档矩阵。
-> `data/fixtures/` 有 20 对规则夹具 + 4 条反例 + 4 条不可表达用例，`data/golden/` 有
-> 28 份 IR golden + 28 份 policy golden（`py data/tools/gen_golden.py --check` 可逐字节复算）。
-> 归因（`blast_radius`，M5）仍未实现：给 `--deploy-order` 走退出码 3，**不返回 0**。
+> `direction` + 命中规则的 `rule_id` / `severity` / 证据形态 / 修复动作）；加 `--deploy-order`
+> 出**四态归因**（`OLD_CONSUMER / NEW_CONSUMER / BOTH / REPLAY_ONLY`，随发布顺序变化）；
+> `--emit-ir` 把三种格式归一到**同一份 IR（规范 JSON + digest）**；`--emit-policy` 导出方向事实
+> 与七档矩阵。`data/fixtures/` 有 20 对规则夹具 + 4 条反例 + 4 条不可表达用例，`data/golden/` 有
+> 28 份 IR golden + 28 份 policy golden + 62 份端到端 golden（`py data/tools/gen_golden.py --check`
+> 可逐字节复算）。
 
 ## 为什么需要它
 
@@ -54,8 +55,8 @@ compat --version
 
 ## 三个最小复现
 
-> 规则命中与三值 `severity` 已落地（M4）；归因 `blast_radius` 待 M5，所以表里那一列仍是 `—`，
-> 给 `--deploy-order` 走 M5 的未实现路径（退出码 3，**不返回 0**）。
+> 归因 `blast_radius` 已落地（M5）：不给 `--deploy-order` 时归因列为 `—` 并在 notes 说明
+> `deploy_order_not_given`（不猜默认顺序）。
 
 **Avro**：删字段
 
@@ -76,11 +77,13 @@ compat data/fixtures/proto/r5-number-reuse-old.pb data/fixtures/proto/r5-number-
 compat data/fixtures/jsonschema/r3-requiredness-old.json data/fixtures/jsonschema/r3-requiredness-new.json --policy forward
 ```
 
-**归因随发布顺序变化**（同一对文件，两种顺序，两个答案）：
+**归因随发布顺序变化**（同一对文件，四种顺序，四个答案）：
 
 ```bash
-compat a.avsc b.avsc --policy backward --deploy-order consumers-first   # 砸老消费者
-compat a.avsc b.avsc --policy backward --deploy-order producers-first   # 砸新消费者
+compat data/fixtures/avro/r1-field-removed-old.avsc data/fixtures/avro/r1-field-removed-new.avsc --policy backward --deploy-order consumers-first   # 砸老消费者
+compat data/fixtures/avro/r1-field-removed-old.avsc data/fixtures/avro/r1-field-removed-new.avsc --policy backward --deploy-order producers-first   # 砸新消费者
+compat data/fixtures/avro/r1-field-removed-old.avsc data/fixtures/avro/r1-field-removed-new.avsc --policy backward --deploy-order simultaneous     # 两个都砸
+compat data/fixtures/avro/r1-field-removed-old.avsc data/fixtures/avro/r1-field-removed-new.avsc --policy backward --deploy-order replay           # 只有重放时炸
 ```
 
 ## 退出码
@@ -108,9 +111,9 @@ compat a.avsc b.avsc --policy backward --deploy-order producers-first   # 砸新
 
 ```bash
 py tools/check-sprint-layout.py       # 方法论布局门（任何新对话的第一件事）
-py -m pytest -q                       # 全量测试（双解释器各 325 项）
+py -m pytest -q                       # 全量测试（双解释器各 357 项）
 py data/tools/gen_fixtures.py --check # fixture 位级复算（.pb 是二进制，逐字节比）
-py data/tools/gen_golden.py --check   # IR + policy golden 逐字节复算（生成器只调 CLI）
+py data/tools/gen_golden.py --check   # IR + policy + 端到端 golden 逐字节复算（生成器只调 CLI）
 ```
 
 本仓库遵循 `ai-tool-project-sprint` 方法论；计划文档在 `plan/`，判定口径的唯一权威在 `data/README.md` §四。
@@ -124,7 +127,7 @@ py data/tools/gen_golden.py --check   # IR + policy golden 逐字节复算（生
 | M2 | ✅ 已完成（2026-10-20） |
 | M3 | ✅ 已完成（2026-10-20） |
 | M4 | ✅ 已完成（2026-10-20） |
-| M5 | ⬜ 未开始 |
+| M5 | ✅ 已完成（2026-10-20） |
 | M6 | ⬜ 未开始 |
 
 CI 状态：**本地等价校验（未接远端，CI 待首推验证）**——双解释器 pytest + 布局门 + CLI 冒烟在 M0 已跑；

@@ -1,0 +1,49 @@
+{
+  "digest": "cc3fe2c75f15b5c7fb35204cea84685cb9d87645dbfa0a97fb6c868fecdf8068",
+  "findings": [
+    {
+      "blast_radius": null,
+      "direction": null,
+      "evidence": {
+        "detail": null,
+        "format": "jsonschema",
+        "kind": null,
+        "note": "N/A（该格式无此概念，规则不适用）",
+        "reason": "JSON Schema 无字段号概念（按属性名寻址），本规则不适用"
+      },
+      "format_evidence": "N/A",
+      "repair_action": null,
+      "repair_hint": "N/A",
+      "rule_id": "R5",
+      "rule_name": "FIELD_NUMBER_REUSED",
+      "severity": null,
+      "stable_path": null,
+      "what_would_trigger": null,
+      "why_static_breaking": null
+    }
+  ],
+  "inputs": {
+    "new": "ir-unsupported-patternproperties-new.json",
+    "old": "ir-unsupported-patternproperties-old.json"
+  },
+  "ir_unsupported": [
+    {
+      "construct": "patternProperties",
+      "json_pointer": "/patternProperties",
+      "reason": "首期 IR 不建模 patternProperties：无法在不做正则/依赖求解的前提下枚举其语义"
+    }
+  ],
+  "notes": [],
+  "policy": "backward",
+  "schema_version": 1,
+  "summary": {
+    "breaking": 0,
+    "findings_total": 1,
+    "ir_unsupported": 1,
+    "non_breaking": 0,
+    "runtime_dependent": 0
+  },
+  "tool": "contractcompat",
+  "verdict": "compatible",
+  "version": "0.1.0.dev0"
+}

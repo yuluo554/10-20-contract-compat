@@ -120,7 +120,26 @@ def build_parser():
         "--verify",
         metavar="PATH",
         default=None,
-        help="校验一份已生成的 JSON 报告（重算 digest 并定位被改字段）",
+        help="校验一份已生成的 JSON 报告（重算 digest 并定位被改字段）；"
+        "配 --replay-old/--replay-new 时重放同一输入，先比内容再比 digest（定位到叶子字段）",
+    )
+    parser.add_argument(
+        "--replay-old",
+        metavar="PATH",
+        default=None,
+        help=argparse.SUPPRESS,  # 只在 --verify 下有意义；--help 的参数面不加噪
+    )
+    parser.add_argument(
+        "--replay-new",
+        metavar="PATH",
+        default=None,
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        "--replay-policy",
+        metavar="NAME",
+        default=None,
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--version",
@@ -145,7 +164,22 @@ def _run(args, stdout, stderr):
     if args.verify:
         if args.old or args.new:
             raise UsageError("--verify 与 <old> <new> 不能同时使用")
-        ok, differences = report.verify_file(args.verify)
+        if args.replay_old or args.replay_new:
+            # 定位面：重放同一输入算 baseline，先比内容再比 digest——能指到被改的叶子字段
+            policy_name = args.replay_policy or "backward"
+            policy.resolve_policy(policy_name, None)
+            blast.validate_deploy_order(args.deploy_order)
+            ok, differences = report.verify_against_inputs(
+                args.verify,
+                args.replay_old,
+                args.replay_new,
+                policy_name,
+                args.deploy_order,
+            )
+        else:
+            if args.replay_policy:
+                raise UsageError("--replay-policy 需要配合 --replay-old/--replay-new 使用")
+            ok, differences = report.verify_file(args.verify)
         if ok:
             _write("报告自洽：digest 与内容一致", stdout)
             return 0

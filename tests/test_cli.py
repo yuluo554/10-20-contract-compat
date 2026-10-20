@@ -31,6 +31,8 @@ AVRO_R1_OLD = os.path.join(ROOT, "data", "fixtures", "avro", "r1-field-removed-o
 AVRO_R1_NEW = os.path.join(ROOT, "data", "fixtures", "avro", "r1-field-removed-new.avsc")
 AVRO_R7_OLD = os.path.join(ROOT, "data", "fixtures", "avro", "r7-default-changed-old.avsc")
 AVRO_R7_NEW = os.path.join(ROOT, "data", "fixtures", "avro", "r7-default-changed-new.avsc")
+AVRO_R4_OLD = os.path.join(ROOT, "data", "fixtures", "avro", "r4-enum-narrowed-old.avsc")
+AVRO_R4_NEW = os.path.join(ROOT, "data", "fixtures", "avro", "r4-enum-narrowed-new.avsc")
 JSON_R1_OLD = os.path.join(ROOT, "data", "fixtures", "jsonschema", "r1-field-removed-old.json")
 
 
@@ -387,6 +389,172 @@ def test_verify_does_not_modify_target(tmp_path):
     before = path.read_bytes()
     run(["--verify", str(path)])
     assert path.read_bytes() == before  # 校验不得写入（失败路径零副作用）
+
+
+def test_verify_locates_tampered_blast_radius(tmp_path):
+    """M5 的定位面：含 `blast_radius` 的报告改一个字节 → 非 0 且 `json_path` 指到该字段。
+
+    `--verify` 配 `--replay-old/--replay-new` 重放同一输入算 baseline，**先比内容再比
+    digest**——定位落到被改的叶子字段，而不是只说"digest 不对"（那用户无从修起）。
+    归因正是发布门上最值得篡改的一格（把 OLD_CONSUMER 改成 REPLAY_ONLY）。
+    """
+    report_path = str(tmp_path / "report.json")
+
+    code, out, _ = run(
+        [AVRO_R1_OLD, AVRO_R1_NEW, "--format", "json", "--deploy-order", "consumers-first"]
+    )
+    assert code == 1
+    payload = loads(out)
+    assert payload["findings"][0]["blast_radius"] == "OLD_CONSUMER"
+    with open(report_path, "w", encoding="utf-8") as handle:
+        handle.write(out)
+
+    tampered = json.loads(out)
+    tampered["findings"][0]["blast_radius"] = "REPLAY_ONLY"
+    with open(report_path, "w", encoding="utf-8") as handle:
+        handle.write(dumps(tampered))
+
+    code, _, err = run(
+        [
+            "--verify",
+            report_path,
+            "--replay-old",
+            AVRO_R1_OLD,
+            "--replay-new",
+            AVRO_R1_NEW,
+            "--replay-policy",
+            "backward",
+            "--deploy-order",
+            "consumers-first",
+        ]
+    )
+    assert code == 1
+    assert "不一致" in err
+    assert "findings[0].blast_radius" in err  # json_path 定位到被改的叶子字段
+    assert "OLD_CONSUMER" in err and "REPLAY_ONLY" in err
+
+
+def test_verify_replay_passes_on_untampered_report(tmp_path):
+    """重放基线的阳性对照：未篡改的报告在重放校验下必须通过。"""
+    code, out, _ = run([AVRO_R1_OLD, AVRO_R1_NEW, "--format", "json", "--deploy-order", "replay"])
+    report_path = str(tmp_path / "report.json")
+    with open(report_path, "w", encoding="utf-8") as handle:
+        handle.write(out)
+    code, out2, _ = run(
+        [
+            "--verify",
+            report_path,
+            "--replay-old",
+            AVRO_R1_OLD,
+            "--replay-new",
+            AVRO_R1_NEW,
+            "--deploy-order",
+            "replay",
+        ]
+    )
+    assert code == 0
+    assert "一致" in out2
+
+
+def test_verify_replay_missing_inputs_exit_two(tmp_path):
+    """重放输入缺失是"调用方写错"（退出码 2），不是"报告被改"（1）。"""
+    report_path = str(tmp_path / "report.json")
+    code, out, _ = run([AVRO_R7_OLD, AVRO_R7_NEW, "--format", "json"])
+    with open(report_path, "w", encoding="utf-8") as handle:
+        handle.write(out)
+    code, _, err = run(
+        [
+            "--verify",
+            report_path,
+            "--replay-old",
+            str(tmp_path / "nope-old.avsc"),
+            "--replay-new",
+            str(tmp_path / "nope-new.avsc"),
+        ]
+    )
+    assert code == 2
+    assert "重放输入不存在" in err
+
+
+# ── 退出码 0/1 在"四态归因 + 三值 severity"下的 CLI 端到端组合 ────────────────
+
+
+def test_deploy_order_keeps_exit_one_for_breaking(tmp_path):
+    """给了 --deploy-order 只改归因列，不改退出码：删字段在 backward 下仍退出 1。"""
+    code, out, _ = run([AVRO_R1_OLD, AVRO_R1_NEW, "--deploy-order", "consumers-first"])
+    assert code == 1
+    assert "OLD_CONSUMER" in out
+
+
+def test_deploy_order_with_compatible_pair_exits_zero():
+    """归因不制造破例：被 policy 接受的方向（non-breaking + 归因）仍是 0。"""
+    code, out, _ = run([AVRO_R7_OLD, AVRO_R7_NEW, "--deploy-order", "producers-first"])
+    assert code == 0
+    assert "NEW_CONSUMER" in out  # R7 命中行带归因，但 severity=non-breaking 不推退出码
+
+
+def test_runtime_dependent_with_deploy_order_exits_one_strict():
+    """enum 收窄在 forward 下是 runtime-dependent：严格档 + 归因 → 仍 1，条目不被压平。"""
+    code, out, _ = run(
+        [
+            AVRO_R4_OLD,
+            AVRO_R4_NEW,
+            "--policy",
+            "forward",
+            "--deploy-order",
+            "replay",
+        ]
+    )
+    assert code == 1
+    assert "REPLAY_ONLY" in out
+    assert "runtime-dependent 说明" in out
+
+
+def test_runtime_dependent_ignored_with_deploy_order_exits_zero():
+    """忽略档只摘退出码：条目与归因照旧输出，退出 0。"""
+    code, out, _ = run(
+        [
+            AVRO_R4_OLD,
+            AVRO_R4_NEW,
+            "--policy",
+            "forward",
+            "--deploy-order",
+            "replay",
+            "--ignore-runtime-dependent",
+        ]
+    )
+    assert code == 0
+    assert "REPLAY_ONLY" in out
+    assert "runtime-dependent" in out
+
+
+def test_policy_none_with_deploy_order_exits_zero():
+    """`--policy none` 恒 0，但差异与归因照列。"""
+    code, out, _ = run([AVRO_R1_OLD, AVRO_R1_NEW, "--policy", "none", "--deploy-order", "simultaneous"])
+    assert code == 0
+    assert "BOTH" in out
+
+
+def test_missing_deploy_order_leaves_null_blast_radius_in_json():
+    """不给 --deploy-order：报告里 blast_radius 为 null，notes 带 deploy_order_not_given。"""
+    code, out, _ = run([AVRO_R1_OLD, AVRO_R1_NEW, "--format", "json"])
+    assert code == 1
+    payload = loads(out)
+    assert payload["notes"] == ["deploy_order_not_given"]
+    hits = [row for row in payload["findings"] if row["severity"] is not None]
+    assert hits and all(row["blast_radius"] is None for row in hits)
+
+
+def test_deploy_order_radii_vary_end_to_end():
+    """端到端锁死"归因随部署顺序改变"：同一对输入四种顺序四种归因（含 REPLAY_ONLY）。"""
+    radii = set()
+    for order in ("consumers-first", "producers-first", "simultaneous", "replay"):
+        code, out, _ = run([AVRO_R1_OLD, AVRO_R1_NEW, "--format", "json", "--deploy-order", order])
+        assert code == 1
+        payload = loads(out)
+        hit = [row for row in payload["findings"] if row["severity"] is not None][0]
+        radii.add(hit["blast_radius"])
+    assert radii == {"OLD_CONSUMER", "NEW_CONSUMER", "BOTH", "REPLAY_ONLY"}
 
 
 # ── 报告键面 ───────────────────────────────────────────────────────────────
