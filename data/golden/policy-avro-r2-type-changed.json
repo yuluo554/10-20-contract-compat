@@ -1,0 +1,53 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "BOTH_OK",
+      "field": "total_amount",
+      "format": "avro",
+      "kind": "default_changed",
+      "new": {
+        "present": true,
+        "value": ""
+      },
+      "number": null,
+      "old": {
+        "present": true,
+        "value": 0
+      },
+      "reason": "默认值变化（0 → ''）；读写两侧都可解析，写侧语义变化需人工确认",
+      "stable_path": "total_amount"
+    },
+    {
+      "detail": "incompatible",
+      "direction": "NONE_OK",
+      "field": "total_amount",
+      "format": "avro",
+      "kind": "type_changed",
+      "new": "string",
+      "number": null,
+      "old": "int",
+      "reason": "字段类型变化（int → string）",
+      "stable_path": "total_amount"
+    }
+  ],
+  "digest": "8cd2f19bb41d4b515b8fd4b0bc8c44aa22c3b0ba8581885a06ed68b612822f74",
+  "format": "avro",
+  "history": [
+    "r2-type-changed-old.avsc"
+  ],
+  "inputs": {
+    "new": "r2-type-changed-new.avsc",
+    "old": "r2-type-changed-old.avsc"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "breaking",
+    "backward-transitive": "breaking",
+    "forward": "breaking",
+    "forward-transitive": "breaking",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

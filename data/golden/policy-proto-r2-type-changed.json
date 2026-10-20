@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": "wire_incompatible",
+      "direction": "NONE_OK",
+      "field": "total_amount",
+      "format": "proto",
+      "kind": "type_changed",
+      "new": "string",
+      "number": null,
+      "old": "int32",
+      "reason": "字段类型变化（int32 → string）",
+      "stable_path": "2"
+    }
+  ],
+  "digest": "66a4ee64fe83f1038500fcfb21d5b32035e07d45be6dae3a6d65d7d34d7ac0f2",
+  "format": "proto",
+  "history": [
+    "r2-type-changed-old.pb"
+  ],
+  "inputs": {
+    "new": "r2-type-changed-new.pb",
+    "old": "r2-type-changed-old.pb"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "breaking",
+    "backward-transitive": "breaking",
+    "forward": "breaking",
+    "forward-transitive": "breaking",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

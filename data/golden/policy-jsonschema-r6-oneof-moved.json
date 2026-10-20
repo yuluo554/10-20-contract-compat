@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "NONE_OK",
+      "field": "payment",
+      "format": "jsonschema",
+      "kind": "oneof_moved",
+      "new": "oneOf:boolean,integer",
+      "number": null,
+      "old": "oneOf:integer,string",
+      "reason": "oneof 归属变化（oneOf:integer,string → oneOf:boolean,integer）",
+      "stable_path": "/properties/payment"
+    }
+  ],
+  "digest": "78669f8650f046ab2b84c8baacf3dbdf005a2f885932dbdf42e32ef2e08009a1",
+  "format": "jsonschema",
+  "history": [
+    "r6-oneof-moved-old.json"
+  ],
+  "inputs": {
+    "new": "r6-oneof-moved-new.json",
+    "old": "r6-oneof-moved-old.json"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "breaking",
+    "backward-transitive": "breaking",
+    "forward": "breaking",
+    "forward-transitive": "breaking",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

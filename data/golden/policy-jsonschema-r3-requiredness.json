@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "BACKWARD_OK",
+      "field": "total_amount",
+      "format": "jsonschema",
+      "kind": "cardinality_changed",
+      "new": "required",
+      "number": null,
+      "old": "optional",
+      "reason": "字段基数变化（optional → required）",
+      "stable_path": "/properties/total_amount"
+    }
+  ],
+  "digest": "46357c7a4f6bb36c5b7bebd15f106fd4171a4cb8ef4ab02b1813335dd9ab30eb",
+  "format": "jsonschema",
+  "history": [
+    "r3-requiredness-old.json"
+  ],
+  "inputs": {
+    "new": "r3-requiredness-new.json",
+    "old": "r3-requiredness-old.json"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "breaking",
+    "forward-transitive": "breaking",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

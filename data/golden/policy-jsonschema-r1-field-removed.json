@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "FORWARD_OK",
+      "field": "total_amount",
+      "format": "jsonschema",
+      "kind": "field_removed",
+      "new": null,
+      "number": null,
+      "old": "integer",
+      "reason": "属性 total_amount 从 properties 消失；旧数据多出的属性对新读者可忽略，新数据缺属性对老读者不可读",
+      "stable_path": "/properties/total_amount"
+    }
+  ],
+  "digest": "b394ee33be77128c1840a8275cce4963bede243d4aab62e3df5ad5dbaa959aec",
+  "format": "jsonschema",
+  "history": [
+    "r1-field-removed-old.json"
+  ],
+  "inputs": {
+    "new": "r1-field-removed-new.json",
+    "old": "r1-field-removed-old.json"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "breaking",
+    "backward-transitive": "breaking",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

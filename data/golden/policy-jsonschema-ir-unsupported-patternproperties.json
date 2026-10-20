@@ -1,0 +1,22 @@
+{
+  "differences": [],
+  "digest": "52568fefd0217c415700643fb0df9d0c8ed150d991ab842f91ccd9073644ce60",
+  "format": "jsonschema",
+  "history": [
+    "ir-unsupported-patternproperties-old.json"
+  ],
+  "inputs": {
+    "new": "ir-unsupported-patternproperties-new.json",
+    "old": "ir-unsupported-patternproperties-old.json"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "compatible",
+    "full-transitive": "compatible",
+    "none": "compatible"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "BOTH_OK",
+      "field": "root",
+      "format": "jsonschema",
+      "kind": "field_added",
+      "new": "object",
+      "number": null,
+      "old": null,
+      "reason": "新增属性 root（optional）；不在 required 中，双向可读",
+      "stable_path": "/properties/root"
+    }
+  ],
+  "digest": "740ebac3e732e3c2891fad5cb230fc669b52cece624b1ef9bf3dc5bdcad17227",
+  "format": "jsonschema",
+  "history": [
+    "ir-unsupported-recursive-ref-old.json"
+  ],
+  "inputs": {
+    "new": "ir-unsupported-recursive-ref-new.json",
+    "old": "ir-unsupported-recursive-ref-old.json"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "compatible",
+    "full-transitive": "compatible",
+    "none": "compatible"
+  }
+}

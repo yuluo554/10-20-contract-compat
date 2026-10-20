@@ -117,6 +117,38 @@
 - `*-transitive` **必须**带 `--history`（版本文件序列）；缺省 → 退出码 2，**不降级为单版本**（降级会把"与历史不兼容"静默报成"兼容"）。
 - `verdict` ∈ `{compatible, breaking}` 只有两值；**方向性信息在 `direction` 字段**，`severity` 的三值是另一维度（见 4.4）。三个字段不得互相替代。
 
+#### 4.1.1 差异项方向（direction）与事实种类（M3 落地口径）
+
+`direction` 是**事实**，policy 是**选择**：换 `--policy` 不改变任何一项的 `direction`。
+
+| direction | 含义 | `backward*` 接受 | `forward*` 接受 | `full*` 接受 |
+|---|---|---|---|---|
+| `BACKWARD_OK` | 新 schema 写出的数据可被旧 schema 读取（新写老读通） | ✅ | — | — |
+| `FORWARD_OK` | 旧 schema 写出的数据可被新 schema 读取（老写新读通） | — | ✅ | — |
+| `BOTH_OK` | 两个方向都可读 | ✅ | ✅ | ✅ |
+| `NONE_OK` | 两个方向都不可读 | — | — | — |
+
+`diff` 只产出下列事实；`kind` 是事实名，**不是** `rule_id`（规则命中是 M4 的规则库面，
+必须从 `rules/rule-table.json` 取，不得由判定核代劳）。
+
+| kind | 何时产生 | direction 判定 |
+|---|---|---|
+| `field_removed` | 字段在新 schema 消失，且字段号/名字没有被 `reserved` 或 alias 承接 | 恒 `FORWARD_OK`：新数据缺字段，`backward` 不可读；旧数据多出字段，`forward` 可读。**三格式同一口径**（本项目明确约定，不按单个格式的宽容度各自为政） |
+| `field_added` | 新 schema 出现旧 schema 没有的字段 | `required` 且无默认 → `BACKWARD_OK`；其余 → `BOTH_OK` |
+| `type_changed` | 字段类型串不同 | Protobuf：同 wire group → `BOTH_OK`，否则 `NONE_OK`；Avro：promotion 方向决定（`FORWARD_OK` / `BACKWARD_OK`），否则 `NONE_OK`；Avro union：新集合是超集 → `FORWARD_OK`，子集 → `BACKWARD_OK`，其余 `NONE_OK`；JSON Schema：`integer→number` → `FORWARD_OK`，反向 → `BACKWARD_OK`，其余 `NONE_OK` |
+| `cardinality_changed` | 基数变化 | `optional→required` / `nullable→required` → `BACKWARD_OK`；反向 → `FORWARD_OK`；`optional↔nullable` 按可空性方向；涉及 `repeated` 或未知组合 → `NONE_OK` |
+| `default_changed` | 默认值三态（无 / null / 有值）任一变化 | 恒 `BOTH_OK`（读侧兼容，写侧语义变化由 4.4 的 severity 处理） |
+| `enum_narrowed` | 新枚举取值集合是旧集合的**真子集** | `BACKWARD_OK`（新数据不含被删取值；旧数据可能含） |
+| `enum_widened` | 旧集合是新集合的真子集 | `FORWARD_OK` |
+| `enum_renumbered` / `enum_changed` | 同名换号 / 同时增删 | `NONE_OK` |
+| `oneof_moved` | oneof 归属变化 | 字段**进入** oneof → `BACKWARD_OK`；**离开** oneof 或 oneof 改名 → `BOTH_OK`；JSON Schema 的 `oneOf`/`anyOf` 分支集合按子集/超集/交叉判定 |
+| `field_number_reused` | Protobuf 同一字段号换了主人 | `NONE_OK` |
+| `reserved_conflict` | Protobuf 新字段号落进同一 schema 的 `reserved` | `NONE_OK`（schema 自相矛盾） |
+
+`diff` 同时返回本次比较的两份 IR（`DiffResult.old/.new`），供 `*-transitive` 对每个历史版本
+重算 `diff`；该锚点**不进报告、不进 golden**。
+
+
 ### 4.2 buf 四档映射（只表达"最接近"，**不宣称等价**）
 
 | 本题 policy | buf 档 | 关系说明 |

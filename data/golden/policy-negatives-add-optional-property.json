@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "BOTH_OK",
+      "field": "total_amount",
+      "format": "jsonschema",
+      "kind": "field_added",
+      "new": "integer",
+      "number": null,
+      "old": null,
+      "reason": "新增属性 total_amount（optional）；不在 required 中，双向可读",
+      "stable_path": "/properties/total_amount"
+    }
+  ],
+  "digest": "600e62b023c055fe6540608ff599d2399c593e89e62076619dd84b2dcc7fbcc9",
+  "format": "jsonschema",
+  "history": [
+    "add-optional-property-old.json"
+  ],
+  "inputs": {
+    "new": "add-optional-property-new.json",
+    "old": "add-optional-property-old.json"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "compatible",
+    "full-transitive": "compatible",
+    "none": "compatible"
+  }
+}

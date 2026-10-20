@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": "union_widened",
+      "direction": "FORWARD_OK",
+      "field": "total_amount",
+      "format": "avro",
+      "kind": "type_changed",
+      "new": "union(null,long,string)",
+      "number": null,
+      "old": "union(null,long)",
+      "reason": "字段类型变化（union(null,long) → union(null,long,string)）",
+      "stable_path": "total_amount"
+    }
+  ],
+  "digest": "5d485629586afd54146d49f54d45c88c66d2a9fcc1c8bd9004b0bec143baef03",
+  "format": "avro",
+  "history": [
+    "union-add-type-old.avsc"
+  ],
+  "inputs": {
+    "new": "union-add-type-new.avsc",
+    "old": "union-add-type-old.avsc"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "breaking",
+    "backward-transitive": "breaking",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

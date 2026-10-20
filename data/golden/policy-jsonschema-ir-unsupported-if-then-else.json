@@ -1,0 +1,22 @@
+{
+  "differences": [],
+  "digest": "4d9d1bedf9dc4224227dd76a8558e55f342ae1d3a299b152e2ce31900a91f642",
+  "format": "jsonschema",
+  "history": [
+    "ir-unsupported-if-then-else-old.json"
+  ],
+  "inputs": {
+    "new": "ir-unsupported-if-then-else-new.json",
+    "old": "ir-unsupported-if-then-else-old.json"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "compatible",
+    "full-transitive": "compatible",
+    "none": "compatible"
+  }
+}

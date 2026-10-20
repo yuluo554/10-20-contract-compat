@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "BOTH_OK",
+      "field": "card_token",
+      "format": "proto",
+      "kind": "oneof_moved",
+      "new": null,
+      "number": null,
+      "old": "payment",
+      "reason": "oneof 归属变化（payment → 无）",
+      "stable_path": "2"
+    }
+  ],
+  "digest": "80c4c927908368f18f2473fd2d046a11e9102a12ed993ec155af81f23ef5a338",
+  "format": "proto",
+  "history": [
+    "r6-oneof-moved-old.pb"
+  ],
+  "inputs": {
+    "new": "r6-oneof-moved-new.pb",
+    "old": "r6-oneof-moved-old.pb"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "compatible",
+    "full-transitive": "compatible",
+    "none": "compatible"
+  }
+}

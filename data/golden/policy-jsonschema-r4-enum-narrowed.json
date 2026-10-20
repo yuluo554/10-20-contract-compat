@@ -1,0 +1,42 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "BACKWARD_OK",
+      "field": "status",
+      "format": "jsonschema",
+      "kind": "enum_narrowed",
+      "new": [
+        "STATUS_UNSPECIFIED",
+        "PENDING"
+      ],
+      "number": null,
+      "old": [
+        "STATUS_UNSPECIFIED",
+        "PENDING",
+        "PAID"
+      ],
+      "reason": "enum 取值集合收窄（删除 PAID）；旧数据可能含被删取值",
+      "stable_path": "/properties/status"
+    }
+  ],
+  "digest": "e04b3343c7b4ad8242124ecd27f2f33c3e333f81be384a01a205898f97f124cd",
+  "format": "jsonschema",
+  "history": [
+    "r4-enum-narrowed-old.json"
+  ],
+  "inputs": {
+    "new": "r4-enum-narrowed-new.json",
+    "old": "r4-enum-narrowed-old.json"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "breaking",
+    "forward-transitive": "breaking",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

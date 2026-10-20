@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": "incompatible",
+      "direction": "NONE_OK",
+      "field": "total_amount",
+      "format": "jsonschema",
+      "kind": "type_changed",
+      "new": "string",
+      "number": null,
+      "old": "integer",
+      "reason": "字段类型变化（integer → string）",
+      "stable_path": "/properties/total_amount"
+    }
+  ],
+  "digest": "6292e76cd1c8a2e65c36f8d3167854c2e19bdb279b364059d145bf16df01667a",
+  "format": "jsonschema",
+  "history": [
+    "r2-type-changed-old.json"
+  ],
+  "inputs": {
+    "new": "r2-type-changed-new.json",
+    "old": "r2-type-changed-old.json"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "breaking",
+    "backward-transitive": "breaking",
+    "forward": "breaking",
+    "forward-transitive": "breaking",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

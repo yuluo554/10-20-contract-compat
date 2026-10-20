@@ -1,0 +1,41 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "BOTH_OK",
+      "field": "status",
+      "format": "jsonschema",
+      "kind": "default_changed",
+      "new": {
+        "present": true,
+        "value": "PAID"
+      },
+      "number": null,
+      "old": {
+        "present": true,
+        "value": "PENDING"
+      },
+      "reason": "默认值变化（'PENDING' → 'PAID'）；读写两侧都可解析，写侧语义变化需人工确认",
+      "stable_path": "/properties/status"
+    }
+  ],
+  "digest": "25ac9ed8575927643e46ea25ffade48eb0b1326928b80369dcc3739dd6bec610",
+  "format": "jsonschema",
+  "history": [
+    "r7-default-changed-old.json"
+  ],
+  "inputs": {
+    "new": "r7-default-changed-new.json",
+    "old": "r7-default-changed-old.json"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "compatible",
+    "full-transitive": "compatible",
+    "none": "compatible"
+  }
+}

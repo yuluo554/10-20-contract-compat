@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "NONE_OK",
+      "field": "status",
+      "format": "proto",
+      "kind": "field_number_reused",
+      "new": "status",
+      "number": 2,
+      "old": "total_amount",
+      "reason": "字段号 2 换了主人（total_amount → status）；旧数据会被按新含义解释",
+      "stable_path": "2"
+    }
+  ],
+  "digest": "cd12758473686484066482d0de3f66ab5365a1353819b5520888764e9244e43b",
+  "format": "proto",
+  "history": [
+    "r5-number-reuse-old.pb"
+  ],
+  "inputs": {
+    "new": "r5-number-reuse-new.pb",
+    "old": "r5-number-reuse-old.pb"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "breaking",
+    "backward-transitive": "breaking",
+    "forward": "breaking",
+    "forward-transitive": "breaking",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

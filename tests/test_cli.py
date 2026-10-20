@@ -24,6 +24,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UNSUPPORTED_FIXTURE = os.path.join(
     ROOT, "data", "fixtures", "jsonschema", "ir-unsupported-patternproperties-new.json"
 )
+UNSUPPORTED_OLD = os.path.join(
+    ROOT, "data", "fixtures", "jsonschema", "ir-unsupported-patternproperties-old.json"
+)
+AVRO_R1_OLD = os.path.join(ROOT, "data", "fixtures", "avro", "r1-field-removed-old.avsc")
+AVRO_R1_NEW = os.path.join(ROOT, "data", "fixtures", "avro", "r1-field-removed-new.avsc")
+AVRO_R7_OLD = os.path.join(ROOT, "data", "fixtures", "avro", "r7-default-changed-old.avsc")
+AVRO_R7_NEW = os.path.join(ROOT, "data", "fixtures", "avro", "r7-default-changed-new.avsc")
+JSON_R1_OLD = os.path.join(ROOT, "data", "fixtures", "jsonschema", "r1-field-removed-old.json")
 
 
 def run(argv, tmp_path=None):
@@ -146,12 +154,146 @@ def test_proto_text_requires_protoc_exit_three(tmp_path):
     assert "descriptor_set_out" in err
 
 
-def test_avro_mapping_not_implemented_exit_three(tmp_path):
-    """骨架期：解析体未实现时**必须退出 3**，绝不能返回 0（否则"没检查"被读成"检查通过"）。"""
-    path = write_avro(tmp_path, "a.avsc", {"type": "record", "name": "A", "fields": []})
-    code, _, err = run([str(path), str(path)])
-    assert code == 3
-    assert "尚未实现" in err or "M2" in err
+def test_avro_field_removed_backward_exits_one_with_verdict(tmp_path):
+    """M3 起普通路径必须出真判定：删字段在 backward 下退出 1，且不再落到"尚未实现"。"""
+    code, out, err = run([AVRO_R1_OLD, AVRO_R1_NEW, "--policy", "backward"])
+    assert code == 1
+    assert "verdict: **breaking**" in out
+    assert "total_amount" in out  # 差异项必须点名稳定路径
+    assert "（无命中）" not in out  # 不能把"有 breaking"渲染成空表
+    assert "尚未实现" not in err
+
+
+def test_avro_field_removed_forward_exits_zero(tmp_path):
+    """同一对文件换 forward：删字段不破 forward（题面验收的机械形态）。"""
+    code, out, _ = run([AVRO_R1_OLD, AVRO_R1_NEW, "--policy", "forward"])
+    assert code == 0
+    assert "verdict: **compatible**" in out
+
+
+def test_policy_none_exits_zero_but_still_lists_differences():
+    code, out, _ = run([AVRO_R1_OLD, AVRO_R1_NEW, "--policy", "none"])
+    assert code == 0
+    assert "verdict: **compatible**" in out
+    assert "total_amount" in out  # none 只关判定强度，不吞差异
+
+
+def test_transitive_with_history_runs_through_cli():
+    """当前对 backward 兼容（r7），但历史版本（r1 old）里被删字段 → transitive 破。"""
+    code, out, _ = run(
+        [
+            AVRO_R7_OLD,
+            AVRO_R7_NEW,
+            "--policy",
+            "backward-transitive",
+            "--history",
+            AVRO_R1_OLD,
+        ]
+    )
+    assert code == 1
+    assert "backward-transitive" in out
+
+
+def test_explain_mapping_end_to_end_has_four_rows_and_phrase():
+    code, out, _ = run([AVRO_R1_OLD, AVRO_R1_NEW, "--policy", "backward", "--explain-mapping"])
+    assert code == 1
+    for policy_name in ("backward", "forward", "full", "none"):
+        assert "`%s`" % policy_name in out
+    assert "只表达最接近" in out
+    assert "不宣称等价" in out
+
+
+def test_explain_mapping_json_stays_parseable():
+    """json 视图把映射表放进报告；不能再追加一段 Markdown 把 JSON 弄坏。"""
+    code, out, _ = run(
+        [AVRO_R1_OLD, AVRO_R1_NEW, "--policy", "backward", "--explain-mapping", "--format", "json"]
+    )
+    assert code == 1
+    payload = loads(out)
+    assert payload["buf_mapping"]["notes"]
+    assert len(payload["buf_mapping"]["rows"]) == 4
+
+
+def test_normal_report_renders_ir_unsupported_without_require_flag():
+    """M3 的普通报告必须走 `_assemble_report` 并把不可表达构造渲染出来。"""
+    code, markdown, _ = run([UNSUPPORTED_OLD, UNSUPPORTED_FIXTURE])
+    assert code == 0
+    assert "不可表达的构造（ir_unsupported）" in markdown
+    assert "patternProperties" in markdown
+    assert "/patternProperties" in markdown
+
+    _, payload_text, _ = run([UNSUPPORTED_OLD, UNSUPPORTED_FIXTURE, "--format", "json"])
+    payload = loads(payload_text)
+    assert payload["summary"]["ir_unsupported"] == len(payload["ir_unsupported"]) == 1
+
+
+def test_mixed_formats_exit_two():
+    code, _, err = run([AVRO_R1_OLD, JSON_R1_OLD])
+    assert code == 2
+    assert "格式不同" in err
+
+
+# ── --emit-policy：policy golden 的唯一出口 ────────────────────────────────
+
+
+def test_emit_policy_exports_differences_and_seven_verdicts():
+    code, out, _ = run([AVRO_R1_OLD, AVRO_R1_NEW, "--emit-policy"])
+    assert code == 0, "数据导出模式退出 0 只表示导出成功"
+    payload = loads(out)
+    assert set(payload) == {
+        "inputs",
+        "format",
+        "differences",
+        "verdicts",
+        "history",
+        "notes",
+        DIGEST_KEY,
+    }
+    assert payload["format"] == "avro"
+    assert payload["inputs"] == {
+        "old": "r1-field-removed-old.avsc",
+        "new": "r1-field-removed-new.avsc",
+    }
+    assert [item["direction"] for item in payload["differences"]] == ["FORWARD_OK"]
+    assert list(payload["verdicts"]) == [
+        "backward",
+        "backward-transitive",
+        "forward",
+        "forward-transitive",
+        "full",
+        "full-transitive",
+        "none",
+    ]
+    assert payload["verdicts"]["backward"] == "breaking"
+    assert payload["verdicts"]["forward"] == "compatible"
+    assert payload["verdicts"]["backward-transitive"] is None  # 没给 history：不拿单版本冒充
+    assert payload["notes"] == ["transitive_history_not_given"]
+    assert payload[DIGEST_KEY] == digest(payload)
+
+
+def test_emit_policy_with_history_fills_transitive_verdicts():
+    code, out, _ = run(
+        [AVRO_R1_OLD, AVRO_R1_NEW, "--emit-policy", "--history", AVRO_R1_OLD]
+    )
+    assert code == 0
+    payload = loads(out)
+    assert payload["history"] == ["r1-field-removed-old.avsc"]
+    assert payload["verdicts"]["backward-transitive"] == "breaking"
+    assert payload["verdicts"]["forward-transitive"] == "compatible"
+    assert payload["notes"] == []
+
+
+def test_emit_ir_and_emit_policy_are_mutually_exclusive():
+    code, _, err = run([AVRO_R1_OLD, AVRO_R1_NEW, "--emit-ir", "--emit-policy"])
+    assert code == 2
+    assert "--emit-policy" in err
+
+
+def test_emit_ir_rejects_history():
+    """IR 导出与 policy/历史无关：收下 --history 会让人以为"比较了历史"。"""
+    code, _, err = run([AVRO_R1_OLD, AVRO_R1_NEW, "--emit-ir", "--history", AVRO_R1_OLD])
+    assert code == 2
+    assert "--history" in err
 
 
 # ── 退出码 0 / 1：由 summary 决定（不经解析器，直接验装配层）─────────────────

@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "BACKWARD_OK",
+      "field": "status",
+      "format": "avro",
+      "kind": "field_added",
+      "new": "string",
+      "number": null,
+      "old": null,
+      "reason": "新增字段 status（required）；无默认值，旧数据无法满足新读者",
+      "stable_path": "status"
+    }
+  ],
+  "digest": "841afdeddab104f90c6d6f07fd29e325b11e68bc8e48a1f2c6e7bc33b8abc4c4",
+  "format": "avro",
+  "history": [
+    "r3-requiredness-old.avsc"
+  ],
+  "inputs": {
+    "new": "r3-requiredness-new.avsc",
+    "old": "r3-requiredness-old.avsc"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "breaking",
+    "forward-transitive": "breaking",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "NONE_OK",
+      "field": "total_amount",
+      "format": "proto",
+      "kind": "reserved_conflict",
+      "new": "total_amount",
+      "number": 2,
+      "old": null,
+      "reason": "新字段号 2 落进同一 schema 的 reserved 区间（schema 自相矛盾）",
+      "stable_path": "2"
+    }
+  ],
+  "digest": "276c06a5d87410f74971d4a46f094c7e99b644c65592857953613aa178de7396",
+  "format": "proto",
+  "history": [
+    "r5-reserved-conflict-old.pb"
+  ],
+  "inputs": {
+    "new": "r5-reserved-conflict-new.pb",
+    "old": "r5-reserved-conflict-old.pb"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "breaking",
+    "backward-transitive": "breaking",
+    "forward": "breaking",
+    "forward-transitive": "breaking",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

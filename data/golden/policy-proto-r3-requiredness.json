@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "BACKWARD_OK",
+      "field": "status",
+      "format": "proto",
+      "kind": "cardinality_changed",
+      "new": "required",
+      "number": null,
+      "old": "optional",
+      "reason": "字段基数变化（optional → required）",
+      "stable_path": "2"
+    }
+  ],
+  "digest": "79b6c8abc7f0b26285db6a96094c9ccaeb19003498d9f3845c70bfadeb387107",
+  "format": "proto",
+  "history": [
+    "r3-requiredness-old.pb"
+  ],
+  "inputs": {
+    "new": "r3-requiredness-new.pb",
+    "old": "r3-requiredness-old.pb"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "breaking",
+    "forward-transitive": "breaking",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

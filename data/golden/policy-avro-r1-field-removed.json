@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "FORWARD_OK",
+      "field": "total_amount",
+      "format": "avro",
+      "kind": "field_removed",
+      "new": null,
+      "number": null,
+      "old": "long",
+      "reason": "字段 total_amount 从新 schema 消失且无 alias 承接；旧数据进入新消费者时可被忽略，反向缺字段",
+      "stable_path": "total_amount"
+    }
+  ],
+  "digest": "8997da22c5365f0b3503dfdca7d6d8a27d0b84838f9f9c3818495ca1f35c8f1c",
+  "format": "avro",
+  "history": [
+    "r1-field-removed-old.avsc"
+  ],
+  "inputs": {
+    "new": "r1-field-removed-new.avsc",
+    "old": "r1-field-removed-old.avsc"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "breaking",
+    "backward-transitive": "breaking",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

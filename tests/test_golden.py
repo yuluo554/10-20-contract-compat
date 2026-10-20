@@ -35,6 +35,14 @@ def golden_files():
     return sorted(name for name in os.listdir(GOLDEN) if name.startswith("ir-") and name.endswith(".json"))
 
 
+def policy_files():
+    if not os.path.isdir(GOLDEN):
+        return []
+    return sorted(
+        name for name in os.listdir(GOLDEN) if name.startswith("policy-") and name.endswith(".json")
+    )
+
+
 def run_generator(script, *args):
     env = dict(os.environ)
     env["PYTHONPATH"] = SRC + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
@@ -50,7 +58,7 @@ def run_generator(script, *args):
 
 
 def readme_golden_names():
-    """从 README 的台账表里抽 golden 文件名（只认表格行里的 `ir-*.json` 反引号项）。"""
+    """从 README 的台账表里抽 golden 文件名（`ir-*.json` 与 `policy-*.json`）。"""
     with open(README, "r", encoding="utf-8") as handle:
         text = handle.read()
     names = set()
@@ -58,7 +66,7 @@ def readme_golden_names():
         if not line.startswith("|"):
             continue
         stripped = line.strip()
-        if not stripped.startswith("| `ir-"):
+        if not (stripped.startswith("| `ir-") or stripped.startswith("| `policy-")):
             continue
         first = stripped.split("|")[1].strip().strip("`")
         if first.endswith(".json"):
@@ -68,8 +76,12 @@ def readme_golden_names():
 
 def test_golden_directory_is_not_empty():
     """非空跑自证：一份 golden 都没有时，本文件的断言什么也没证明。"""
-    files = golden_files()
-    assert len(files) == 27, "应有 27 份 IR golden（19 规则对 + 4 反例 + 4 不可表达），实际 %d" % len(files)
+    assert len(golden_files()) == 27, (
+        "应有 27 份 IR golden（19 规则对 + 4 反例 + 4 不可表达），实际 %d" % len(golden_files())
+    )
+    assert len(policy_files()) == 27, (
+        "应有 27 份 policy golden（与 IR 一一对应），实际 %d" % len(policy_files())
+    )
 
 
 def test_golden_shape_and_digest_are_self_consistent():
@@ -92,12 +104,51 @@ def test_golden_shape_and_digest_are_self_consistent():
 
 def test_golden_has_no_absolute_paths_or_timestamps():
     """跨机可复算：golden 里不得出现绝对路径、时间戳、主机名一类的漂移源。"""
-    forbidden = ("C:\\", "D:\\", "/home/", "\\Users\\", "/Users/")
-    for name in golden_files():
+    forbidden = ("C:\\", "D:\\", "/home/", "\\Users/", "/Users/")
+    for name in golden_files() + policy_files():
         with open(os.path.join(GOLDEN, name), "r", encoding="utf-8") as handle:
             text = handle.read()
         for needle in forbidden:
             assert needle not in text, "%s 含绝对路径片段 %r" % (name, needle)
+
+
+def test_policy_golden_shape_digest_and_no_fake_severity():
+    """policy golden 只承载 M3 的事实：差异项方向 + 七档 verdict。
+
+    反向断言：不得出现 `severity`——那是 M4 规则库的第三维；出现在这里就是伪造期望值。
+    """
+    from contractcompat.policy import DIRECTIONS, POLICIES, TRANSITIVE, VERDICTS
+
+    assert policy_files()
+    for name in policy_files():
+        with open(os.path.join(GOLDEN, name), "r", encoding="utf-8") as handle:
+            text = handle.read()
+        payload = loads(text)
+        assert set(payload) == {
+            "inputs",
+            "format",
+            "differences",
+            "verdicts",
+            "history",
+            "notes",
+            DIGEST_KEY,
+        }, "%s 顶层键不对: %s" % (name, sorted(payload))
+        assert payload[DIGEST_KEY] == digest(payload), "%s 的 digest 与内容不自洽" % name
+        for side in ("old", "new"):
+            value = payload["inputs"][side]
+            assert "/" not in value and "\\" not in value, "%s 的 inputs.%s 带了路径" % (name, side)
+        assert payload["format"] in ("proto", "avro", "jsonschema"), name
+        assert list(payload["verdicts"]) == list(POLICIES), name
+        for policy_name, verdict in payload["verdicts"].items():
+            if policy_name in TRANSITIVE:
+                assert verdict in VERDICTS, "%s/%s 的 transitive 必须真算出来" % (name, policy_name)
+            else:
+                assert verdict in VERDICTS, "%s/%s" % (name, policy_name)
+        assert payload["history"], "%s 缺 transitive 基线（生成器应传 --history <old>）" % name
+        for item in payload["differences"]:
+            assert item["direction"] in DIRECTIONS, "%s: %r" % (name, item)
+        assert "severity" not in payload
+        assert "\"severity\"" not in text
 
 
 def test_generator_check_is_byte_identical():
@@ -121,21 +172,24 @@ def test_fixture_generator_check_is_byte_identical():
 def test_readme_golden_table_is_bidirectional():
     """台账与磁盘双向对账：表里有而盘上没有 → 红；盘上有而表里没有 → 红。"""
     listed = readme_golden_names()
-    on_disk = set(golden_files())
+    on_disk = set(golden_files()) | set(policy_files())
     assert listed, "README 台账一条都没抽到（表搬走了？）"
     assert sorted(listed - on_disk) == [], "台账点名但磁盘缺失: %s" % sorted(listed - on_disk)
     assert sorted(on_disk - listed) == [], "磁盘有但台账没登记: %s" % sorted(on_disk - listed)
 
 
-def test_readme_marks_policy_goldens_as_pending():
-    """M1 只冻 IR：README 必须**如实**标注七档矩阵待 M3，不能写成已生成。"""
+def test_readme_registers_policy_goldens_as_generated():
+    """M3 收尾：README 必须把七档矩阵登记成已生成，且盘上确实有 27 份。
+
+    反向断言：不得再写"待 M3"——没生成却登记成"已生成"会被文件数抓；
+    生成了却还写"待 M3"会让承诺-证据台账滞后。
+    """
     with open(README, "r", encoding="utf-8") as handle:
         text = handle.read()
-    assert "待 M3" in text
-    assert "policy-*.json" in text
-    # 反向断言：盘上确实没有 policy-*.json（没生成却登记成"已生成"会被这里抓）
-    pending = [name for name in os.listdir(GOLDEN) if name.startswith("policy-")]
-    assert pending == [], "M1 不应有 policy golden（M3 才生成），实际: %s" % pending
+    assert "待 M3" not in text
+    assert "policy-*.json" in text or "policy-<dir>-<slug>.json" in text
+    assert "七档" in text
+    assert len(policy_files()) == 27
 
 
 def test_golden_is_consistent_across_two_generator_runs():

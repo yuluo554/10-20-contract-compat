@@ -1,0 +1,22 @@
+{
+  "differences": [],
+  "digest": "eef19c89fa2a9f7907e23ed8806e2fcdd5224ada3996c25404bd957aa66da498",
+  "format": "avro",
+  "history": [
+    "rename-with-alias-old.avsc"
+  ],
+  "inputs": {
+    "new": "rename-with-alias-new.avsc",
+    "old": "rename-with-alias-old.avsc"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "compatible",
+    "full-transitive": "compatible",
+    "none": "compatible"
+  }
+}

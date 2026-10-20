@@ -1,0 +1,35 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "FORWARD_OK",
+      "field": "total_amount",
+      "format": "proto",
+      "kind": "field_removed",
+      "new": null,
+      "number": 2,
+      "old": "int64",
+      "reason": "字段号 2 消失且未 reserved；老消费者读不到新数据里的该字段",
+      "stable_path": "2"
+    }
+  ],
+  "digest": "9c2c5402432091ca57e88e2b6d0489aed30e6d86bbf1dad3b6f9f349e933ea0f",
+  "format": "proto",
+  "history": [
+    "r1-field-removed-old.pb"
+  ],
+  "inputs": {
+    "new": "r1-field-removed-new.pb",
+    "old": "r1-field-removed-old.pb"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "breaking",
+    "backward-transitive": "breaking",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

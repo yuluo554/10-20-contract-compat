@@ -1,0 +1,22 @@
+{
+  "differences": [],
+  "digest": "da9be600f46c232870a5ea0f1bb6b02c14eac258ee66d75a34c7ca70451c4679",
+  "format": "proto",
+  "history": [
+    "delete-reserved-old.pb"
+  ],
+  "inputs": {
+    "new": "delete-reserved-new.pb",
+    "old": "delete-reserved-old.pb"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "compatible",
+    "full-transitive": "compatible",
+    "none": "compatible"
+  }
+}

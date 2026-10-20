@@ -1,0 +1,42 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "BACKWARD_OK",
+      "field": "status",
+      "format": "avro",
+      "kind": "enum_narrowed",
+      "new": [
+        "STATUS_UNSPECIFIED",
+        "PENDING"
+      ],
+      "number": null,
+      "old": [
+        "STATUS_UNSPECIFIED",
+        "PENDING",
+        "PAID"
+      ],
+      "reason": "enum 取值集合收窄（删除 PAID）；旧数据可能含被删取值",
+      "stable_path": "status"
+    }
+  ],
+  "digest": "10553a87bb11130092013a54bb36c150d5fbf61104f9efe25d31f933bfffc2c6",
+  "format": "avro",
+  "history": [
+    "r4-enum-narrowed-old.avsc"
+  ],
+  "inputs": {
+    "new": "r4-enum-narrowed-new.avsc",
+    "old": "r4-enum-narrowed-old.avsc"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "breaking",
+    "forward-transitive": "breaking",
+    "full": "breaking",
+    "full-transitive": "breaking",
+    "none": "compatible"
+  }
+}

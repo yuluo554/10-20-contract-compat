@@ -1,0 +1,41 @@
+{
+  "differences": [
+    {
+      "detail": null,
+      "direction": "BOTH_OK",
+      "field": "status",
+      "format": "avro",
+      "kind": "default_changed",
+      "new": {
+        "present": true,
+        "value": "PAID"
+      },
+      "number": null,
+      "old": {
+        "present": true,
+        "value": "PENDING"
+      },
+      "reason": "默认值变化（'PENDING' → 'PAID'）；读写两侧都可解析，写侧语义变化需人工确认",
+      "stable_path": "status"
+    }
+  ],
+  "digest": "65a8ca73a09ab68652947cfc64dc693b7147d99c6710d79dfdb39211ecd993be",
+  "format": "avro",
+  "history": [
+    "r7-default-changed-old.avsc"
+  ],
+  "inputs": {
+    "new": "r7-default-changed-new.avsc",
+    "old": "r7-default-changed-old.avsc"
+  },
+  "notes": [],
+  "verdicts": {
+    "backward": "compatible",
+    "backward-transitive": "compatible",
+    "forward": "compatible",
+    "forward-transitive": "compatible",
+    "full": "compatible",
+    "full-transitive": "compatible",
+    "none": "compatible"
+  }
+}

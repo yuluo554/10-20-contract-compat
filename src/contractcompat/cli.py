@@ -96,6 +96,12 @@ def build_parser():
         action="store_true",
         help="只输出两侧归一后的 IR（规范 JSON，含 digest），不做判定；golden 生成器用它取真值",
     )
+    parser.add_argument(
+        "--emit-policy",
+        action="store_true",
+        help="只输出方向性判定数据（差异项 + 七档 verdict 矩阵，规范 JSON，含 digest）；"
+        "绕过规则/归因，golden 生成器用它取真值",
+    )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "--strict-runtime-dependent",
@@ -133,7 +139,7 @@ def _write(text, stream):
 
 def _run(args, stdout, stderr):
     """真正的执行体；返回退出码。所有判定逻辑在 M2–M5 逐棒接上。"""
-    from . import blast, parsers, policy, report, rules
+    from . import blast, parsers, policy, report
 
     # ① 参数组合校验（退出码 2 的路径在 M0 就要真跑）
     if args.verify:
@@ -155,7 +161,14 @@ def _run(args, stdout, stderr):
     if not args.old or not args.new:
         raise UsageError("缺少输入文件：用法 compat <old> <new> [--policy ...]（--help 查看全部参数）")
 
-    policy.resolve_policy(args.policy, args.history)
+    if args.emit_ir and args.emit_policy:
+        raise UsageError("--emit-ir 与 --emit-policy 不能同时使用（两者都是数据导出模式）")
+    if args.emit_ir and args.history:
+        raise UsageError("--emit-ir 不接受 --history（IR 导出与 policy / 历史版本无关）")
+
+    # 数据导出模式只回答"输入到底是什么"，不判 policy；普通路径先校验档位组合。
+    if not args.emit_ir and not args.emit_policy:
+        policy.resolve_policy(args.policy, args.history)
     blast.validate_deploy_order(args.deploy_order)
 
     # ② 解析（M2 起三格式都接上；未实现的路径仍会明确报"尚未实现"而不是返回 0）
@@ -180,12 +193,26 @@ def _run(args, stdout, stderr):
         _write(_render_ir(old_ir, new_ir, args.old, args.new), stdout)
         return 0
 
-    # ③ 判定 → 规则 → 归因 → 报告
+    history_paths = list(args.history or ())
+    history_irs = [_parse(parsers, path, args.require_complete_ir) for path in history_paths]
+
+    # ②″ 只出方向性判定数据（policy golden 的唯一入口）：不接规则/归因
+    if args.emit_policy:
+        _write(
+            _render_policy(old_ir, new_ir, args.old, args.new, history_paths, history_irs),
+            stdout,
+        )
+        return 0
+
+    # ③ 判定 → 报告（M3 接上方向性判定核；规则命中/severity 待 M4、归因待 M5）
     differences = policy.diff(old_ir, new_ir)
-    verdict = policy.judge(differences, args.policy, args.history or ())
-    table = rules.load_rule_table()
-    findings = rules.evaluate(differences, table)
+    verdict = policy.judge(differences, args.policy, history_irs)
+
+    # M3 的桥：差异项原样进 findings（rule_id/severity 为 null），避免渲染成"（无命中）"
+    # 这种会被读成"检查通过"的假阴性。M4 接上 rules.evaluate 后必须替换本桥。
+    findings = _findings_from_differences(differences)
     findings, notes = blast.attribute(findings, args.deploy_order)
+    notes = ["findings_stage_pending_M4"] + list(notes)
 
     mapping = policy.mapping_table() if args.explain_mapping else None
     built = _assemble_report(
@@ -200,7 +227,8 @@ def _run(args, stdout, stderr):
     )
     _write(report.render(built, args.output_format), stdout)
 
-    if args.explain_mapping:
+    # md 视图后追加映射表；json 已把 buf_mapping 放进报告，追加会破坏 JSON 可解析性
+    if args.explain_mapping and args.output_format == "md":
         _write(_render_mapping(mapping), stdout)
 
     return _exit_code(built, args.strict_runtime_dependent)
@@ -278,6 +306,64 @@ def _render_ir(old_ir, new_ir, old_path, new_path):
     return to_json(payload)
 
 
+def _findings_from_differences(differences):
+    """M3 过渡桥：差异项 → 报告行（rule_id/severity 留 null，方向与证据如实带上）。
+
+    **这不是规则命中求值**：``rules.evaluate`` 仍是 M4 的交付物。之所以不直接传
+    ``findings=()``，是因为报告会把空表渲染成"（无命中）"，而 verdict 同时是 breaking——
+    那会被读成"检查通过"。本函数只搬运事实，并在 ``notes`` 里标明 severity 待 M4。
+    """
+    rows = []
+    for item in differences:
+        rows.append(
+            {
+                "rule_id": None,
+                "rule_name": item.get("kind"),
+                "stable_path": item.get("stable_path"),
+                "direction": item.get("direction"),
+                "evidence": {
+                    "kind": item.get("kind"),
+                    "detail": item.get("detail"),
+                    "old": item.get("old"),
+                    "new": item.get("new"),
+                    "reason": item.get("reason"),
+                },
+            }
+        )
+    return rows
+
+
+def _render_policy(old_ir, new_ir, old_path, new_path, history_paths, history_irs):
+    """``--emit-policy`` 的唯一出口：差异项 + 七档 verdict 矩阵（规范 JSON + digest）。
+
+    与 ``--emit-ir`` 同属**数据导出**：退出码 0 只表示"导出成功"，不表示"兼容"。
+    transitive 档需要历史版本；没给 ``--history`` 时该档写 ``null`` 并在 ``notes`` 说明，
+    **不拿单版本冒充 transitive**。
+    """
+    from . import policy
+    from .canonical import DIGEST_KEY, digest
+    from .report import to_json
+
+    differences = policy.diff(old_ir, new_ir)
+    verdicts = {}
+    for name in policy.POLICIES:
+        if name in policy.TRANSITIVE:
+            verdicts[name] = policy.judge(differences, name, history_irs) if history_irs else None
+        else:
+            verdicts[name] = policy.judge(differences, name)
+
+    payload = {
+        "inputs": {"old": _display_name(old_path), "new": _display_name(new_path)},
+        "format": old_ir.format,
+        "differences": list(differences),
+        "verdicts": verdicts,
+        "history": [_display_name(path) for path in history_paths],
+        "notes": [] if history_irs else ["transitive_history_not_given"],
+    }
+    payload[DIGEST_KEY] = digest(payload)
+    return to_json(payload)
+
+
 def _render_mapping(mapping):
     lines = ["", "## buf 四档映射（只表达最接近，不宣称等价）", ""]
     lines.append("| 本题 policy | 最接近的 buf 档 | 关系说明 |")
@@ -290,13 +376,27 @@ def _render_mapping(mapping):
 
 
 def _exit_code(built, strict_runtime_dependent):
-    """退出码只由 summary 的计数决定（不含任何渲染/格式因素）。"""
+    """退出码只由 summary 的计数决定（不含任何渲染/格式因素）。
+
+    M3 的过渡态：规则命中还没接上，findings 的 severity 全为 null。此时不能因为
+    ``breaking == 0`` 就返回 0——那会把 verdict=breaking 读成"检查通过"。所以当
+    **没有任何 severity 被分类**（三值计数全为 0）时，回落到 verdict。
+    M4 接上 severity 后，正常路径的退出码仍以三值计数为准（含
+    ``--ignore-runtime-dependent`` 的强度语义）。
+    """
     summary = built.get("summary") or {}
     if built.get("policy") == "none":
         return 0
     if summary.get("breaking", 0) > 0:
         return 1
     if strict_runtime_dependent and summary.get("runtime_dependent", 0) > 0:
+        return 1
+    classified = (
+        summary.get("breaking", 0)
+        + summary.get("runtime_dependent", 0)
+        + summary.get("non_breaking", 0)
+    )
+    if classified == 0 and built.get("verdict") == "breaking":
         return 1
     return 0
 

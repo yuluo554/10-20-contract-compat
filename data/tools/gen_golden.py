@@ -5,9 +5,13 @@
 为什么必须只调 CLI：如果生成器和生产实现各写一份逻辑，两份同错会让 golden 永远绿——
 "比对两份预先算好的答案"是本项目明令禁止的形态（``plan/04`` §四）。
 
-M1 的 golden 只落 **IR 形态**（归一后的两侧中间表示）。"七档 × 三格式的方向性矩阵"
-golden 要等 M3 的 ``diff``/``judge`` 落地，在 ``data/golden/README.md`` 里如实标注
-"待 M3 生成"——**不伪造期望值**。
+两类 golden：
+  * ``ir-<dir>-<slug>.json``     —— ``--emit-ir`` 的规范 JSON（两侧归一后的 IR）
+  * ``policy-<dir>-<slug>.json`` —— ``--emit-policy`` 的规范 JSON（差异项 + 七档矩阵）
+
+``policy-*`` 的 transitive 三档用 **old 作为唯一历史基线**（``--history <old>``），
+所以七档 verdict 都是真算出来的，不是 null 占位；输出里的 ``history`` 字段如实记录该基线。
+**不伪造期望值**：生成器只搬运 CLI 输出，不自己算 verdict。
 
 用法::
 
@@ -96,16 +100,20 @@ def golden_name(directory, slug):
     return "ir-%s-%s.json" % (directory, slug)
 
 
-def _run_cli(old_rel, new_rel):
-    """调用**生产 CLI**产出规范 IR JSON；返回 ``(exit_code, stdout_bytes, stderr_text)``。"""
+def policy_golden_name(directory, slug):
+    return "policy-%s-%s.json" % (directory, slug)
+
+
+def _run_cli(old_rel, new_rel, extra=()):
+    """调用**生产 CLI**产出规范 JSON；返回 ``(exit_code, stdout_bytes, stderr_text)``。"""
     command = [
         sys.executable,
         "-m",
         "contractcompat.cli",
         old_rel,
         new_rel,
-        "--emit-ir",
     ]
+    command.extend(extra)
     completed = subprocess.run(
         command,
         cwd=ROOT,
@@ -121,7 +129,7 @@ def _run_cli(old_rel, new_rel):
 
 
 def generate_into(target_dir, only=None):
-    """把每对 fixture 的 IR golden 写进 ``target_dir``；返回 ``(written, failures)``。"""
+    """把每对 fixture 的 IR / policy golden 写进 ``target_dir``；返回 ``(written, failures)``。"""
     if not os.path.isdir(target_dir):
         os.makedirs(target_dir)
     pairs, problems = discover_pairs()
@@ -132,19 +140,28 @@ def generate_into(target_dir, only=None):
     for directory, slug, old_rel, new_rel in pairs:
         if only and only not in slug:
             continue
-        code, stdout, stderr = _run_cli(old_rel, new_rel)
-        if code != 0:
-            failures.append(
-                "%s/%s 的 CLI 退出码 %d（不是 0）：%s" % (directory, slug, code, stderr.strip()[:200])
-            )
-            continue
-        if not stdout:
-            failures.append("%s/%s 的 CLI 没有输出" % (directory, slug))
-            continue
-        path = os.path.join(target_dir, golden_name(directory, slug))
-        with open(path, "wb") as handle:
-            handle.write(stdout)
-        written.append(golden_name(directory, slug))
+        jobs = (
+            (golden_name(directory, slug), ("--emit-ir",)),
+            (
+                policy_golden_name(directory, slug),
+                ("--emit-policy", "--history", old_rel),
+            ),
+        )
+        for name, extra in jobs:
+            code, stdout, stderr = _run_cli(old_rel, new_rel, extra)
+            if code != 0:
+                failures.append(
+                    "%s/%s 的 CLI 退出码 %d（不是 0）：%s"
+                    % (directory, slug, code, stderr.strip()[:200])
+                )
+                continue
+            if not stdout:
+                failures.append("%s/%s 的 CLI 没有输出（%s）" % (directory, slug, " ".join(extra)))
+                continue
+            path = os.path.join(target_dir, name)
+            with open(path, "wb") as handle:
+                handle.write(stdout)
+            written.append(name)
     return written, failures
 
 
@@ -158,7 +175,7 @@ def run_generate(only=None):
     keep = os.path.join(GOLDEN, ".gitkeep")
     if os.path.isfile(keep):
         os.remove(keep)
-    sys.stdout.write("已写入 %d 份 IR golden 到 data/golden/\n" % len(written))
+    sys.stdout.write("已写入 %d 份 golden（IR + policy）到 data/golden/\n" % len(written))
     return 0
 
 
@@ -176,7 +193,7 @@ def run_check(only=None):
         on_disk = set()
         if os.path.isdir(GOLDEN):
             for name in sorted(os.listdir(GOLDEN)):
-                if name.startswith("ir-") and name.endswith(".json"):
+                if (name.startswith("ir-") or name.startswith("policy-")) and name.endswith(".json"):
                     if only and only not in name:
                         continue
                     on_disk.add(name)
