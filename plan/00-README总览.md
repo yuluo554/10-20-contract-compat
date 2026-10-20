@@ -1,5 +1,7 @@
 # 00 · README 总览 — 10-20-contract-compat（跨格式契约兼容性判定器）
 
+> 方法论：`ai-tool-project-sprint`（装订 2026-10-20）｜布局门：`py tools/check-sprint-layout.py`｜续接对话第一件事 = 跑它
+
 - 性质：不参赛项目题 · 发布 GitHub **公开仓库** · 署名 yuluo554
 - 定位宣言："buf 用 `FILE/PACKAGE/WIRE_JSON/WIRE` 四档，Confluent 用 `BACKWARD/FORWARD/FULL` 七档，JSON Schema 生态各说各话——**同一个『删字段』在三种格式里被两套黑话描述，跨格式团队必然误判**。本工具把 Avro / Protobuf / JSON Schema 三种 schema 归一到同一套判定语汇，输出同一张表：破例规则、稳定路径（字段号 / JSON Pointer）、**砸的是老消费者还是新消费者**、最小修复动作。"
 - 交付形态：**纯本地双文件 CLI（`compat <old> <new>`；零 registry、零网络、零 Kafka、零模型）**。单一形态，不设备选。
@@ -12,16 +14,19 @@
 |---|---|---|
 | plan/00-README总览.md | 本文档：索引 / 决策记录（含四条红线）/ 弃选项 / 承诺-证据台账 / 里程碑 | ✅ v1 |
 | plan/01-题目文档.md | 十段式题目定稿（含已占位工具覆盖表、需求原话、反向证据、空白检索、招牌动词表） | ✅ v1 |
-| plan/02-架构与技术选型.md | 分层架构、IR 设计、判定核、确定性架构、退出码契约、选型与弃选 | ⬜ 待 M0 后第一批 |
-| plan/03-模块详设.md | 五模块接口、数据结构、处理顺序、失败路径、测试点 | ⬜ 待 M0 后第一批 |
-| plan/04-数据计划.md | 三格式 fixture 设计、golden 纪律、覆盖度口径 | ⬜ 待 M0 后第一批 |
-| plan/05-里程碑.md | 每周可演示物、出口门、环境事实、风险预案 | ⬜ 待 M0 后第一批 |
-| plan/06-交付对标.md | 题面 §三/§四逐条落位、发布前检查清单 | ⬜ 待 M0 后第一批 |
-| plan/HANDOFF-M1.md | 下一棒（数据先行）交接快照 | ⬜ 待 M0 收尾产出 |
+| plan/02-架构与技术选型.md | 分层架构、IR 设计、判定核、确定性架构、退出码契约、选型与弃选 | ✅ v1（M0） |
+| plan/03-模块详设.md | 五模块接口、数据结构、处理顺序、失败路径、测试点 | ✅ v1（M0） |
+| plan/04-数据计划.md | 三格式 fixture 设计、golden 纪律、覆盖度口径 | ✅ v1（M0） |
+| plan/05-里程碑.md | 每周可演示物、出口门、环境事实、风险预案 | ✅ v1（M0） |
+| plan/06-交付对标.md | 题面 §三/§四逐条落位、发布前检查清单 | ✅ v1（M0） |
+| plan/HANDOFF-M1.md | 下一棒（数据先行）交接快照 | ✅ M0 收尾产出 |
 | data/README.md | 依据查证记录（三态）/ 数据源可获取性 / 合成数据纪律 / 数值口径（唯一定义处） | ✅ v1 |
-| README.md | 面向使用者的首屏：一句话定位、三条最小复现、已占位工具覆盖表摘录 | ⬜ 待 M6 |
-| pyproject.toml / src/contractcompat/ / tests/ | 可安装 CLI、五模块实现、测试 | ⬜ 待 M2–M5 |
-| data/fixtures/{proto,avro,jsonschema}/ | 三格式最小 fixture（每条规则 × 每种格式一对 old/new + 反例） | ⬜ 待 M1 |
+| README.md | 面向使用者的首屏：一句话定位、三条最小复现、已占位工具覆盖表摘录 | ✅ 骨架版（M6 定稿） |
+| pyproject.toml / src/contractcompat/ / rules/ / tests/ | 可安装 CLI、五模块骨架（参数面 + 退出码契约已跑通）、规则表、测试 | ✅ 骨架（M2–M5 补实体） |
+| tools/check-sprint-layout.py | 方法论布局门（8 组变异验证通过） | ✅ M0 |
+| tools/verify-layout-gate.py | 布局门的变异验证脚本（门自身的证伪） | ✅ M0 |
+| .github/workflows/ci.yml | CI 四腿矩阵（本地 YAML 解析通过，**未实跑**） | ✅ M0（待首推验证） |
+| data/fixtures/{proto,avro,jsonschema}/ | 三格式最小 fixture（每条规则 × 每种格式一对 old/new + 反例） | ⬜ 待 M1（目录已建，内容为空） |
 | data/golden/ | 判定表 golden（md + 规范 JSON 各一份） | ⬜ 待 M1 |
 | plan/RELEASE-M6.md | 发布留档（tag 时点事实 / tag 后追加事实两栏） | ⬜ 待 M6 |
 | .gitignore | Python 标准模板 | ✅ M0（首提交） |
@@ -53,6 +58,11 @@
 | 2026-10-20 | **规则表是数据不是代码** | 七类规则的命中条件放在 `rules/` 的定值表里（可被测试逐条遍历），不在代码里散落 if；这样"每条规则三格式各有用例"才能机械核对 |
 | 2026-10-20 | **Python 底线 = 3.8** | 本机可提供的解释器含 3.8 与 3.12 两档；不依赖 3.9+ 语法，避免下游 CI 装不上。首期唯一第三方依赖 `protobuf`（用于 `FileDescriptorSet` 解析），其余为标准库 |
 | 2026-10-20 | **DoD 产物口径 = A) Release 附产物** | `git archive <tag>` + `gzip -9n` + `SHA256SUMS`，本地留副本；**M6 行写死"Release 附产物"，不得在重写里程碑表时省略这三个字** |
+| 2026-10-20 | **布局门用 Python 实现**（`tools/check-sprint-layout.py`） | 项目是 Python 项目，CI 与本地都不必额外装 Node；判据集与模板一致（判据不改，只换语言）。8 组变异验证已过，见 `tools/verify-layout-gate.py` |
+| 2026-10-20 | **`protobuf` 是可选依赖**（extra `proto`），不进核心依赖 | 核心判定路径（Avro / JSON Schema / 判定 / 报告）零第三方依赖；只有 `.pb` 输入才需要它。缺它时退出码 3，不降级 |
+| 2026-10-20 | **版本单一来源 = `__init__.__version__`**，`pyproject` 走 `dynamic` | 避免两处手改漏一处 |
+| 2026-10-20 | **规则表双份：仓库根为源、包内 `data/` 为镜像** | wheel 安装后仓库根的 `rules/` 不存在，判定仍必须可用；镜像由逐字节测试守住（干净 venv 装 wheel 已实测） |
+| 2026-10-20 | **骨架期未实现路径一律退出码 3**，绝不返回 0 | 返回 0 的空壳会把"没检查"读成"检查通过"（本 skill 明令禁止的形态） |
 
 ### 弃选项（含理由）
 
@@ -97,13 +107,13 @@
 
 | 里程碑 | 内容 | 出口门 | 状态 |
 |---|---|---|---|
-| M0 | 出题定稿 + 骨架 | plan/00 与 01 齐；`data/README.md` 口径落定；`.gitignore`；中文首提交；`check_topic.py` 无 FAIL | ✅ 已完成（2026-10-20） |
+| M0 | 出题定稿 + 计划套件 + 方法论装订 + 可运行骨架 | plan/00–06 齐且 `plan/00` 顶部有装订行；`AGENTS.md` 与布局门在位（8 组变异逐组变红）；`data/README.md` 口径落定；`pyproject.toml` + 包骨架 + `compat` 命令可跑；`--help`/`--version` 可用；退出码 2/3 路径真跑；CI workflow 本地 YAML 解析通过；双解释器 pytest 全绿 | ✅ 已完成（2026-10-20） |
 | M1 | **数据先行**：三格式 fixture + golden | `data/fixtures/{proto,avro,jsonschema}/` 每条规则 × 每种格式一对 old/new；**同一个"删字段"在三种格式下各一套 fixture**；方向性判定 golden（七档矩阵）与 golden 生成脚本可重建；反例在列（"看起来破但不破"，如 Avro union 加类型） | ⬜ 未开始 |
 | M2 | 统一 IR | 三格式各 fixture 解析出同构 IR（字段名/字段号/类型/基数/默认值/enum 编号/reserved 七项齐全）；不可表达构造落 `ir_unsupported`；同机双跑逐字节一致 | ⬜ 未开始 |
 | M3 | 方向性判定核 | 七档 policy 全部可用；同一"删字段"三格式语义一致（backward 破 / forward 不破）；`--explain-mapping` 输出 buf 四档映射表；`*-transitive` 缺 `--history` 时退出码 2 | ⬜ 未开始 |
 | M4 | 破例规则库 | 七类规则三格式各有用例；`severity` 三值完整；`runtime-dependent` 带 `why_static_breaking` + `what_would_trigger` 两段；字段号复用（跨 message / 与 reserved 冲突）命中正确 | ⬜ 未开始 |
 | M5 | 归因与 CLI | `blast_radius` 随 `--deploy-order` 变化（四种顺序各断言）；`repair_action` 三格式语法落点正确；退出码 0/1/2/3 全覆盖；golden 逐字节；`--verify` 篡改可定位 | ⬜ 未开始 |
-| M6 | 发布 | 干净环境按 README 跑通三场景；**`git tag` + GitHub Release（附产物：`git archive` 源码包 + `SHA256SUMS`，本地留副本）+ `plan/RELEASE-M6.md` 发布留档（tag 时点事实 / tag 后追加事实两栏）**；发布 GitHub **公开仓库**；收尾跑 `check_release.py` 无 FAIL | ⬜ 未开始 |
+| M6 | 发布 | 干净环境按 README 跑通三场景；**`git tag` + GitHub Release（附产物：`git archive` 源码包 + `SHA256SUMS`，本地留副本）+ `plan/RELEASE-M6.md` 发布留档（tag 时点事实 / tag 后追加事实两栏）**；发布 GitHub **公开仓库**；收尾跑发布终态自检门（M6 同轮实现，落地前不在本表点名路径）无 FAIL | ⬜ 未开始 |
 
 ## 台账使用说明
 

@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: "test (py${{ matrix.python-version }} / ${{ matrix.os }})"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.8", "3.12"]
+        exclude:
+          # ubuntu-latest 的 setup-python 对 3.8 支持在缩小；windows 3.8 覆盖“底线解释器”这条通路
+          - os: ubuntu-latest
+            python-version: "3.8"
+    env:
+      PYTHONUTF8: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: "Install (editable + dev extras)"
+        run: python -m pip install -e ".[dev]"
+      - name: "Sprint layout gate (methodology binding)"
+        run: python tools/check-sprint-layout.py
+      - name: "Unit tests"
+        run: python -m pytest -q
+      - name: "CLI smoke (console script)"
+        run: compat --version
+      - name: "CLI smoke (module path, the other entry)"
+        run: python -m contractcompat.cli --help

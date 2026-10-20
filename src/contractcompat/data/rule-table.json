@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "notes": "规则表是数据不是代码：命中条件与修复动作在此登记，rules.py 只加载与求值。口径唯一定义在 data/README.md §4.3。",
+  "severity_values": ["breaking", "runtime-dependent", "non-breaking"],
+  "rules": [
+    {
+      "rule_id": "R1",
+      "name": "FIELD_REMOVED",
+      "default_severity": "breaking",
+      "repair_action": "reserve",
+      "formats": {
+        "proto": {
+          "applies": true,
+          "evidence": "field_number_missing_without_reserved",
+          "repair_hint": "reserved {number};   // 保留字段号，避免被复用"
+        },
+        "avro": {
+          "applies": true,
+          "evidence": "field_absent_or_renamed_without_alias",
+          "repair_hint": "\"aliases\": [\"{old_name}\"]   // 改名时声明别名，旧数据仍可解析"
+        },
+        "jsonschema": {
+          "applies": true,
+          "evidence": "property_absent_or_removed_from_required",
+          "repair_hint": "\"default\": {value}   // 或保留属性，避免老数据读不到"
+        }
+      }
+    },
+    {
+      "rule_id": "R2",
+      "name": "TYPE_CHANGED",
+      "default_severity": "breaking",
+      "repair_action": "bump-and-version",
+      "formats": {
+        "proto": {
+          "applies": true,
+          "evidence": "wire_incompatible_type_change",
+          "repair_hint": "保留旧字段号与原类型，新增字段号承载新类型"
+        },
+        "avro": {
+          "applies": true,
+          "evidence": "type_or_logical_type_change",
+          "repair_hint": "使用 union 并保留旧类型分支：[\"null\", \"string\", \"int\"]"
+        },
+        "jsonschema": {
+          "applies": true,
+          "evidence": "type_or_format_change",
+          "repair_hint": "用 \"oneOf\" 同时接受新旧类型，并在下个大版本收窄"
+        }
+      }
+    },
+    {
+      "rule_id": "R3",
+      "name": "REQUIREDNESS_CHANGED",
+      "default_severity": "breaking",
+      "repair_action": "add-default",
+      "formats": {
+        "proto": {
+          "applies": true,
+          "evidence": "label_change_or_new_required_without_default",
+          "repair_hint": "新增字段标 optional 并给 default_value"
+        },
+        "avro": {
+          "applies": true,
+          "evidence": "new_field_without_default",
+          "repair_hint": "\"default\": {value}   // 无默认的新字段会让旧数据解析失败"
+        },
+        "jsonschema": {
+          "applies": true,
+          "evidence": "required_list_added",
+          "repair_hint": "从 \"required\" 移除，或同时给 \"default\""
+        }
+      }
+    },
+    {
+      "rule_id": "R4",
+      "name": "ENUM_NARROWED",
+      "default_severity": "runtime-dependent",
+      "repair_action": "bump-and-version",
+      "formats": {
+        "proto": {
+          "applies": true,
+          "evidence": "enum_value_removed_or_renamed",
+          "repair_hint": "保留旧枚举值并标 deprecated，或保留编号占位"
+        },
+        "avro": {
+          "applies": true,
+          "evidence": "symbol_removed",
+          "repair_hint": "保留旧 symbol；如需收窄，先确认数据流中从未出现"
+        },
+        "jsonschema": {
+          "applies": true,
+          "evidence": "enum_list_narrowed",
+          "repair_hint": "保留旧取值，或用 oneOf 兼容新旧集合"
+        }
+      }
+    },
+    {
+      "rule_id": "R5",
+      "name": "FIELD_NUMBER_REUSED",
+      "default_severity": "breaking",
+      "repair_action": "reserve",
+      "formats": {
+        "proto": {
+          "applies": true,
+          "evidence": "field_number_reused_or_conflicts_with_reserved",
+          "repair_hint": "reserved {number};   // 旧号永久保留，新字段用新号"
+        },
+        "avro": {
+          "applies": false,
+          "reason": "Avro 无字段号概念（按字段名解析），本规则不适用",
+          "repair_hint": "N/A"
+        },
+        "jsonschema": {
+          "applies": false,
+          "reason": "JSON Schema 无字段号概念（按属性名寻址），本规则不适用",
+          "repair_hint": "N/A"
+        }
+      }
+    },
+    {
+      "rule_id": "R6",
+      "name": "ONEOF_MOVED",
+      "default_severity": "runtime-dependent",
+      "repair_action": "add-branch",
+      "formats": {
+        "proto": {
+          "applies": true,
+          "evidence": "field_entered_or_left_oneof",
+          "repair_hint": "保留旧 oneof 成员，新增分支而不是移动"
+        },
+        "avro": {
+          "applies": false,
+          "reason": "Avro 无 oneof 概念；union 分支移动按 R2/R4 归因",
+          "repair_hint": "N/A"
+        },
+        "jsonschema": {
+          "applies": true,
+          "evidence": "oneof_or_anyof_branch_moved",
+          "repair_hint": "用 anyOf 同时接受新旧分支"
+        }
+      }
+    },
+    {
+      "rule_id": "R7",
+      "name": "DEFAULT_CHANGED",
+      "default_severity": "non-breaking",
+      "repair_action": "add-default",
+      "formats": {
+        "proto": {
+          "applies": true,
+          "evidence": "default_value_changed",
+          "repair_hint": "读侧兼容；写侧语义变化需在发布说明中标注"
+        },
+        "avro": {
+          "applies": true,
+          "evidence": "default_changed",
+          "repair_hint": "读侧兼容；写侧语义变化需在发布说明中标注"
+        },
+        "jsonschema": {
+          "applies": true,
+          "evidence": "default_changed",
+          "repair_hint": "读侧兼容；写侧语义变化需在发布说明中标注"
+        }
+      }
+    }
+  ],
+  "runtime_dependent_templates": {
+    "R4": {
+      "why_static_breaking": "枚举取值集合被收窄；按旧 schema 写入的、含被删取值的历史数据在新 schema 下不可读。",
+      "what_would_trigger": "当数据流中出现被删除的枚举取值时（含历史数据重放）才会真正失败；若该取值从未写入，则线上不会触发。"
+    },
+    "R6": {
+      "why_static_breaking": "字段的 oneof 归属改变；静态上按旧 schema 写入的消息与新 schema 的成员约束不一致。",
+      "what_would_trigger": "当消息体中确实携带被移动的成员时才会失败；若该成员在当前流量中从不出现，则线上不会触发。"
+    }
+  }
+}

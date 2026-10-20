@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "contractcompat"
+description = "跨格式契约兼容性判定器：把 Avro / Protobuf / JSON Schema 归一到同一套判定语汇"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "yuluo554" }]
+keywords = ["schema", "compatibility", "avro", "protobuf", "json-schema", "ci"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.12",
+  "Environment :: Console",
+  "Operating System :: OS Independent",
+]
+dependencies = []
+dynamic = ["version"]
+
+[project.optional-dependencies]
+proto = ["protobuf>=3.20"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+compat = "contractcompat.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yuluo554/10-20-contract-compat"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# 规则表随包分发（安装后 `rules/` 不在盘上，但判定必须仍可用）。
+# 唯一可编辑副本 = 仓库根 `rules/rule-table.json`；包内那份是**镜像**，
+# 由 `tests/test_rules.py::test_packaged_mirror_matches_source` 逐字节守住。
+[tool.setuptools.package-data]
+contractcompat = ["data/*.json"]
+
+[tool.setuptools.dynamic]
+version = { attr = "contractcompat.__version__" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = ["error::DeprecationWarning:contractcompat.*"]

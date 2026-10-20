@@ -1,0 +1,8 @@
+* text=auto eol=lf
+
+# 二进制 / 字节被断言的产物：git 不得改写其字节
+*.pb binary
+*.png binary
+
+# golden 与 fixture 的字节是被测对象：一旦登记 sha256 就必须 -text
+data/golden/** -text
