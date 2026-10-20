@@ -99,9 +99,9 @@
 | 三格式归一 IR | `google.protobuf.descriptor_pb2`（`FileDescriptorProto`）/ Avro `.avsc` 纯 JSON / JSON Schema `dict` 树（✅ 规则语义已核，⬜ 逐条入库） | `compat <old> <new> --emit-ir`（规范 JSON：`{inputs, old, new, digest}`） | M2：三格式 fixture 的 IR 七项逐项断言（`tests/test_parser_{avro,jsonschema,proto}.py`）+ 54 份 schema 输入双跑逐字节一致 + 与 `data/golden/ir-*.json` 逐字节一致（`gen_golden.py --check`） | ✅ M2 |
 | 方向性判定七档 | Confluent 官方档位语义（✅ 文档已核，见 CG-1778 引文） | `--policy` 参数 + `verdict` / `differences[*].direction` | M3 `data/golden/policy-*.json` 七档矩阵（transitive 基线 = old）+ `tests/test_policy.py` | ✅ M3 |
 | buf 四档映射 | buf 官方文档档位与规则名（✅） | `--explain-mapping` 输出表 | 测试断言映射表逐行存在且含"只表达最接近、不宣称等价"字样（md/json 两种出口） | ✅ M3 |
-| 七类破例规则 | 三格式规范语义（⬜ 逐条核对入库，不复制全文） | `findings[*].rule_id` | M4 每条规则三格式各一对 fixture 的 golden | ⬜ M4 |
-| `runtime-dependent` 三值语义 | HN-22411747 原话（✅）+ Confluent JSON Schema 自承（✅） | `findings[*].severity` + 两段说明 | M4 enum 收窄 fixture：条目存在、带说明、严格档下退出码 1 | ⬜ M4 |
-| 字段号复用检查（跨 message / 与 reserved 冲突） | buf 规则集未覆盖该格（✅ 已核官方规则名） | R5 命中记录 | M4 `data/fixtures/proto/number-reuse-*` 的 golden | ⬜ M4 |
+| 七类破例规则 | 三格式规范语义（⬜ 逐条核对入库，不复制全文） | `findings[*].rule_id` | M4 `tests/test_rules.py` 逐格真跑命中（18 格 20 对）+ `test_severity.py` 三值 + `test_negatives.py` 4 反例无误报 | ✅ M4 |
+| `runtime-dependent` 三值语义 | HN-22411747 原话（✅）+ Confluent JSON Schema 自承（✅） | `findings[*].severity` + 两段说明 | M4：条目存在、两段说明在 md/json 两个出口、严格档退出码 1、`--ignore-runtime-dependent` 不删条目 | ✅ M4 |
+| 字段号复用检查（跨 message / 与 reserved 冲突） | buf 规则集未覆盖该格（✅ 已核官方规则名） | R5 命中记录 | M4：三种形态各一条用例（同 message 换主人 / reserved 冲突 / **跨 message**），后者由 `meta.messages` 文件级求值 | ✅ M4 |
 | "谁会炸"归因四态 | HN-21429460 事故原话（✅） | `blast_radius` + `--deploy-order` | M5 同一破例四种发布顺序的 golden 四联 | ⬜ M5 |
 | 最小修复动作 | 三格式语法落点（✅ 语法明确） | `repair_action` + 描述文本 | M5 三格式各一条 golden 修复文本 | ⬜ M5 |
 | CLI + 退出码矩阵 | 退出码定义唯一在 `data/README.md` §4.5 | `compat` 命令 | M5 0/1/2/3 各至少一条用例全跑到 | ⬜ M5 |
@@ -120,7 +120,7 @@
 | M1 | **数据先行**：三格式 fixture + golden | `data/fixtures/{proto,avro,jsonschema}/` 每条规则 × 每种格式一对 old/new（21 格登记 21/21 = 18 对 + 3 格 N/A 结论）；**同一个"删字段"在三种格式下各一套 fixture**；golden 生成脚本 `--check` 位级一致（M1 只冻 **IR 形态**——七档判定 golden 顺延 M3，**未伪造**）；反例 4/4（"看起来破但不破"，如 Avro union 加类型） | ✅ 已完成（2026-10-20） |
 | M2 | 统一 IR | 三格式各 fixture 解析出同构 IR（字段名/字段号/类型/基数/默认值/enum 编号/reserved 七项齐全）；不可表达构造落 `ir_unsupported`；同机双跑逐字节一致 | ✅ 已完成（2026-10-20） |
 | M3 | 方向性判定核 | 七档 policy 全部可用；同一"删字段"三格式语义一致（backward 破 / forward 不破）；`--explain-mapping` 输出 buf 四档映射表；`*-transitive` 缺 `--history` 时退出码 2；`policy-*.json` 七档矩阵 ×27 | ✅ 已完成（2026-10-20） |
-| M4 | 破例规则库 | 七类规则三格式各有用例；`severity` 三值完整；`runtime-dependent` 带 `why_static_breaking` + `what_would_trigger` 两段；字段号复用（跨 message / 与 reserved 冲突）命中正确 | ⬜ 未开始 |
+| M4 | 破例规则库 | 七类规则三格式各有用例；`severity` 三值完整；`runtime-dependent` 带 `why_static_breaking` + `what_would_trigger` 两段；字段号复用（跨 message / 与 reserved 冲突）命中正确 | ✅ 已完成（2026-10-20） |
 | M5 | 归因与 CLI | `blast_radius` 随 `--deploy-order` 变化（四种顺序各断言）；`repair_action` 三格式语法落点正确；退出码 0/1/2/3 全覆盖；golden 逐字节；`--verify` 篡改可定位 | ⬜ 未开始 |
 | M6 | 发布 | 干净环境按 README 跑通三场景；**`git tag` + GitHub Release（附产物：`git archive` 源码包 + `SHA256SUMS`，本地留副本）+ `plan/RELEASE-M6.md` 发布留档（tag 时点事实 / tag 后追加事实两栏）**；发布 GitHub **公开仓库**；收尾跑发布终态自检门（M6 同轮实现，落地前不在本表点名路径）无 FAIL | ⬜ 未开始 |
 

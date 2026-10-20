@@ -8,8 +8,8 @@
 
 | 产物 | 形态 | 状态 |
 |---|---|---|
-| `ir-<dir>-<slug>.json` × 27 | 规范 JSON：`{inputs, old, new, digest}`，两侧归一后的 IR | ✅ M1 冻结 |
-| `policy-<dir>-<slug>.json` × 27 | 规范 JSON：`{inputs, format, differences[], verdicts{}, history[], notes[], digest}`，**方向性事实 + 七档矩阵** | ✅ M3 冻结 |
+| `ir-<dir>-<slug>.json` × 28 | 规范 JSON：`{inputs, old, new, digest}`，两侧归一后的 IR | ✅ M1 冻结 |
+| `policy-<dir>-<slug>.json` × 28 | 规范 JSON：`{inputs, format, differences[], verdicts{}, history[], notes[], digest}`，**方向性事实 + 七档矩阵** | ✅ M3 冻结 |
 | `cli-*.md` / `cli-*.json`（端到端输出） | CLI 的 md 与 json 两种渲染 | ⬜ **待 M5 生成** |
 
 **为什么 M3 的 policy golden 不含 `severity`**：方向（`direction`）是判定核的事实，七档 `verdict`
@@ -26,7 +26,7 @@ M4 接上 `rules.evaluate` 后，端到端 golden（M5）才承载 severity。
 > §二 的"预期命中"列记的是**夹具的设计意图**（这条夹具是为了演哪条规则而造的），
 > 不是判定输出。M3 的判定输出已由 `policy-*.json` 落盘并登记在 §二·policy 台账。
 
-## 二、golden 台账（IR ×27 + policy ×27）
+## 二、golden 台账（IR ×28 + policy ×28）
 
 > 这张表与磁盘**双向对账**：表里有而盘上没有 → 红；盘上有而表里没有 → 红
 > （`tests/test_golden.py::test_readme_golden_table_is_bidirectional`）。
@@ -38,6 +38,7 @@ M4 接上 `rules.evaluate` 后，端到端 golden（M5）才承载 severity。
 | `ir-proto-r3-requiredness.json` | `r3-requiredness` | proto | R3 `optional → required`（proto2 label） | 见 §二·policy 台账 |
 | `ir-proto-r4-enum-narrowed.json` | `r4-enum-narrowed` | proto | R4 enum 删值 | 见 §二·policy 台账 |
 | `ir-proto-r5-number-reuse.json` | `r5-number-reuse` | proto | R5 同一号换主人（复用） | 见 §二·policy 台账 |
+| `ir-proto-r5-cross-message-reuse.json` | `r5-cross-message-reuse` | proto | R5 跨 message 复用（buf 空白格；`meta.messages` 文件级求值） | 见 §二·policy 台账 |
 | `ir-proto-r5-reserved-conflict.json` | `r5-reserved-conflict` | proto | R5 新字段号落进 `reserved` | 见 §二·policy 台账 |
 | `ir-proto-r6-oneof-moved.json` | `r6-oneof-moved` | proto | R6 字段移出 `oneof` | 见 §二·policy 台账 |
 | `ir-proto-r7-default-changed.json` | `r7-default-changed` | proto | R7 `default_value` 变化 | 见 §二·policy 台账 |
@@ -61,7 +62,7 @@ M4 接上 `rules.evaluate` 后，端到端 golden（M5）才承载 severity。
 | `ir-negatives-delete-reserved.json` | `delete-reserved` | negatives | 反例：删字段但号已 `reserved` 不破 | 见 §二·policy 台账 |
 | `ir-negatives-add-optional-property.json` | `add-optional-property` | negatives | 反例：加可选 property 不破 | 见 §二·policy 台账 |
 
-### policy 台账（27 份：方向事实 + 七档矩阵）
+### policy 台账（28 份：方向事实 + 七档矩阵）
 
 > `backward / forward / full / none` 四列是 verdict（`compatible` / `breaking`）；
 > 三档 transitive 也在文件里，基线 = 同目录 old（见 §一）。`none` 恒 `compatible`。
@@ -73,6 +74,7 @@ M4 接上 `rules.evaluate` 后，端到端 golden（M5）才承载 severity。
 | `policy-proto-r3-requiredness.json` | `r3-requiredness` | proto | compatible / breaking / breaking / compatible |
 | `policy-proto-r4-enum-narrowed.json` | `r4-enum-narrowed` | proto | compatible / breaking / breaking / compatible |
 | `policy-proto-r5-number-reuse.json` | `r5-number-reuse` | proto | breaking / breaking / breaking / compatible |
+| `policy-proto-r5-cross-message-reuse.json` | `r5-cross-message-reuse` | proto | breaking / compatible / breaking / compatible |
 | `policy-proto-r5-reserved-conflict.json` | `r5-reserved-conflict` | proto | breaking / breaking / breaking / compatible |
 | `policy-proto-r6-oneof-moved.json` | `r6-oneof-moved` | proto | compatible / compatible / compatible / compatible |
 | `policy-proto-r7-default-changed.json` | `r7-default-changed` | proto | compatible / compatible / compatible / compatible |

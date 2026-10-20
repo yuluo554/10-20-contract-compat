@@ -139,7 +139,7 @@ def _write(text, stream):
 
 def _run(args, stdout, stderr):
     """真正的执行体；返回退出码。所有判定逻辑在 M2–M5 逐棒接上。"""
-    from . import blast, parsers, policy, report
+    from . import blast, parsers, policy, report, rules
 
     # ① 参数组合校验（退出码 2 的路径在 M0 就要真跑）
     if args.verify:
@@ -204,15 +204,23 @@ def _run(args, stdout, stderr):
         )
         return 0
 
-    # ③ 判定 → 报告（M3 接上方向性判定核；规则命中/severity 待 M4、归因待 M5）
+    # ③ 判定 → 规则命中 → 报告（M3 方向性判定核 + M4 破例规则库；归因待 M5）
     differences = policy.diff(old_ir, new_ir)
     verdict = policy.judge(differences, args.policy, history_irs)
 
-    # M3 的桥：差异项原样进 findings（rule_id/severity 为 null），避免渲染成"（无命中）"
-    # 这种会被读成"检查通过"的假阴性。M4 接上 rules.evaluate 后必须替换本桥。
-    findings = _findings_from_differences(differences)
+    # 规则命中：severity 是**相对当前 policy** 的判定（data/README.md §4.4）。
+    # transitive 档把历史版本也送进求值——否则历史导致的 breaking 在报告里没有对应条目。
+    history_groups = [
+        (_display_name(path), policy.diff(history_ir, new_ir))
+        for path, history_ir in zip(history_paths, history_irs)
+    ]
+    findings = rules.evaluate(
+        differences,
+        rules.load_rule_table(),
+        policy=args.policy,
+        history=history_groups,
+    )
     findings, notes = blast.attribute(findings, args.deploy_order)
-    notes = ["findings_stage_pending_M4"] + list(notes)
 
     mapping = policy.mapping_table() if args.explain_mapping else None
     built = _assemble_report(
@@ -306,33 +314,6 @@ def _render_ir(old_ir, new_ir, old_path, new_path):
     return to_json(payload)
 
 
-def _findings_from_differences(differences):
-    """M3 过渡桥：差异项 → 报告行（rule_id/severity 留 null，方向与证据如实带上）。
-
-    **这不是规则命中求值**：``rules.evaluate`` 仍是 M4 的交付物。之所以不直接传
-    ``findings=()``，是因为报告会把空表渲染成"（无命中）"，而 verdict 同时是 breaking——
-    那会被读成"检查通过"。本函数只搬运事实，并在 ``notes`` 里标明 severity 待 M4。
-    """
-    rows = []
-    for item in differences:
-        rows.append(
-            {
-                "rule_id": None,
-                "rule_name": item.get("kind"),
-                "stable_path": item.get("stable_path"),
-                "direction": item.get("direction"),
-                "evidence": {
-                    "kind": item.get("kind"),
-                    "detail": item.get("detail"),
-                    "old": item.get("old"),
-                    "new": item.get("new"),
-                    "reason": item.get("reason"),
-                },
-            }
-        )
-    return rows
-
-
 def _render_policy(old_ir, new_ir, old_path, new_path, history_paths, history_irs):
     """``--emit-policy`` 的唯一出口：差异项 + 七档 verdict 矩阵（规范 JSON + digest）。
 
@@ -378,11 +359,12 @@ def _render_mapping(mapping):
 def _exit_code(built, strict_runtime_dependent):
     """退出码只由 summary 的计数决定（不含任何渲染/格式因素）。
 
-    M3 的过渡态：规则命中还没接上，findings 的 severity 全为 null。此时不能因为
-    ``breaking == 0`` 就返回 0——那会把 verdict=breaking 读成"检查通过"。所以当
-    **没有任何 severity 被分类**（三值计数全为 0）时，回落到 verdict。
-    M4 接上 severity 后，正常路径的退出码仍以三值计数为准（含
-    ``--ignore-runtime-dependent`` 的强度语义）。
+    M4 起 severity 由 ``rules.evaluate`` 给出（且是相对当前 policy 的判定），所以
+    "被本 policy 接受的方向"不会计进任何破例计数——删字段在 ``forward`` 下退出 0 就是这条。
+    ``--ignore-runtime-dependent`` 只把 runtime-dependent 从计数里摘出，条目不删。
+
+    末尾的回落分支是**防御**：万一某类差异没有对应规则命中（三值计数全 0）而 verdict
+    仍是 breaking，绝不能返回 0——那会把"没检查"读成"检查通过"。
     """
     summary = built.get("summary") or {}
     if built.get("policy") == "none":

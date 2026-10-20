@@ -30,7 +30,12 @@ UNSUPPORTED_CONSTRUCT_OF = {
 
 
 def scan_rule_fixtures():
-    """返回 ``{"R1": {"proto": {"old": path, "new": path}, ...}}``——从磁盘现算。"""
+    """返回 ``{"R1": {"proto": {"old": [path...], "new": [path...]}, ...}}``——从磁盘现算。
+
+    每侧是**列表**：同一格允许不止一对夹具（R5×proto 有"同 message 换主人"与
+    "跨 message 复用"两种形态）。早期版本用单值覆盖，第二对会被静默吞掉——
+    那会让"覆盖了几对"这句话无从核对。
+    """
     found = {}
     problems = []
     for directory in ("proto", "avro", "jsonschema"):
@@ -46,8 +51,15 @@ def scan_rule_fixtures():
             fmt = EXT_FORMAT["." + ext]
             if fmt != directory:
                 problems.append("%s/%s 的扩展名是 %s，却放在 %s 目录" % (directory, name, fmt, directory))
-            found.setdefault(rule.upper(), {}).setdefault(fmt, {})[side] = os.path.join(base, name)
+            slot = found.setdefault(rule.upper(), {}).setdefault(fmt, {}).setdefault(side, [])
+            slot.append(os.path.join(base, name))
     return found, problems
+
+
+def pair_count(found, rule_id, fmt):
+    """该格登记了几对夹具（两侧都齐才算一对）。"""
+    slot = found.get(rule_id, {}).get(fmt, {})
+    return min(len(slot.get("old", [])), len(slot.get("new", [])))
 
 
 def _scan_side_pairs(base, prefix=""):
@@ -78,19 +90,22 @@ def scan_unsupported():
 
 
 def matrix_rows(found, table):
-    """逐格算 ``(rule_id, format, 状态, 证据)``；状态 ∈ {covered, na, MISSING, UNEXPECTED}。"""
+    """逐格算 ``(rule_id, format, 状态, 证据)``；状态 ∈ {covered, na, MISSING, UNEXPECTED}。
+
+    ``证据`` 在 covered 格上记夹具对数（R5×proto 是 2 对：同 message 换主人 + 跨 message）。
+    """
     rows = []
     for rule in table["rules"]:
         rule_id = rule["rule_id"]
         for fmt in ("proto", "avro", "jsonschema"):
             applies = bool(rule["formats"][fmt].get("applies"))
-            slot = found.get(rule_id, {}).get(fmt, {})
-            complete = bool(slot.get("old") and slot.get("new"))
+            pairs = pair_count(found, rule_id, fmt)
             if applies:
-                rows.append((rule_id, fmt, "covered" if complete else "MISSING", rule["name"]))
+                rows.append((rule_id, fmt, "covered" if pairs else "MISSING",
+                             "%s（%d 对）" % (rule["name"], pairs)))
             else:
                 rows.append(
-                    (rule_id, fmt, "na" if not complete else "UNEXPECTED",
+                    (rule_id, fmt, "na" if not pairs else "UNEXPECTED",
                      rule["formats"][fmt].get("reason", ""))
                 )
     return rows

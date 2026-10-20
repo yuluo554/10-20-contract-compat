@@ -145,16 +145,17 @@ def to_markdown(report):
     lines.append("## 判定表（%d 条）" % len(findings))
     lines.append("")
     if findings:
-        lines.append("| rule_id | stable_path | severity | direction | blast_radius | repair |")
-        lines.append("|---|---|---|---|---|---|")
+        lines.append("| rule_id | stable_path | severity | direction | evidence | blast_radius | repair |")
+        lines.append("|---|---|---|---|---|---|---|")
         for row in findings:
             lines.append(
-                "| %s | %s | %s | %s | %s | %s |"
+                "| %s | %s | %s | %s | %s | %s | %s |"
                 % (
                     _cell(row.get("rule_id")),
                     _cell(row.get("stable_path")),
                     _cell(row.get("severity")),
                     _cell(row.get("direction")),
+                    _cell(row.get("format_evidence")),
                     _cell(row.get("blast_radius")),
                     _cell(row.get("repair_action")),
                 )
@@ -162,6 +163,24 @@ def to_markdown(report):
     else:
         lines.append("（无命中）")
     lines.append("")
+
+    # N/A 是**结论**不是缺格：该格式没有这个概念。省略理由就等于宣称"这个格式没这问题"。
+    not_applicable = [row for row in findings if row.get("format_evidence") == "N/A"]
+    if not_applicable:
+        lines.append("## 该格式不适用的规则（N/A 是结论，不是缺格）")
+        lines.append("")
+        for row in not_applicable:
+            evidence = row.get("evidence") or {}
+            lines.append(
+                "- `%s` %s — %s：%s"
+                % (
+                    row.get("rule_id"),
+                    row.get("rule_name") or "",
+                    evidence.get("format") or "—",
+                    evidence.get("reason") or "—",
+                )
+            )
+        lines.append("")
 
     explained = [row for row in findings if row.get("why_static_breaking") or row.get("what_would_trigger")]
     if explained:

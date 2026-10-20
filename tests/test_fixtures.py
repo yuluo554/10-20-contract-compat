@@ -23,19 +23,22 @@ def test_three_formats_share_one_semantic_fixture():
     found, _ = fixture_scan.scan_rule_fixtures()
     for fmt in ("proto", "avro", "jsonschema"):
         assert fmt in found.get("R1", {}), "R1 缺 %s 夹具" % fmt
+        assert fixture_scan.pair_count(found, "R1", fmt) == 1, "R1×%s 应当只有一对夹具" % fmt
     stems = set()
     for fmt in ("proto", "avro", "jsonschema"):
         for side in ("old", "new"):
-            stems.add(os.path.splitext(os.path.basename(found["R1"][fmt][side]))[0])
+            for path in found["R1"][fmt][side]:
+                stems.add(os.path.splitext(os.path.basename(path))[0])
     assert stems == {"r1-field-removed-old", "r1-field-removed-new"}, stems
 
 
 def test_r1_is_the_same_rule_across_formats():
     """三格式的"删字段"必须真的都是**少一个字段**——不是三份不同的事。"""
+    found, _ = fixture_scan.scan_rule_fixtures()
     irs = {}
     for fmt in ("proto", "avro", "jsonschema"):
-        old = parse(fixture_scan.scan_rule_fixtures()[0]["R1"][fmt]["old"])
-        new = parse(fixture_scan.scan_rule_fixtures()[0]["R1"][fmt]["new"])
+        old = parse(found["R1"][fmt]["old"][0])
+        new = parse(found["R1"][fmt]["new"][0])
         irs[fmt] = (set(f.name for f in old.fields), set(f.name for f in new.fields))
     for fmt, (old_names, new_names) in irs.items():
         assert old_names - new_names == {"total_amount"}, "%s 删掉的字段不是 total_amount: %s" % (

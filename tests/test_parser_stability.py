@@ -24,10 +24,10 @@ from contractcompat.parsers.proto import protobuf_available
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURES = os.path.join(ROOT, "data", "fixtures")
 
-#: 54 = 18 `.pb` + 14 `.avsc` + 22 `.json`；另有 18 份 `.proto` 是**人读源文本**，
+#: 56 = 20 `.pb` + 14 `.avsc` + 22 `.json`；另有 20 份 `.proto` 是**人读源文本**，
 #: 不是解析输入（文本一律退出码 3，见 `test_ir.py`）。
 SCHEMA_EXTS = (".pb", ".avsc", ".json")
-EXPECTED_SCHEMA_INPUTS = 54
+EXPECTED_SCHEMA_INPUTS = 56
 
 SINGLE_FILE_CASES = (
     os.path.join(FIXTURES, "avro", "r1-field-removed-old.avsc"),

@@ -74,13 +74,30 @@ def readme_golden_names():
     return names
 
 
+def expected_golden_count():
+    """真值 = 生成器现算的配对数（不手填：新增一对夹具时这里自动跟上）。
+
+    手工数字会随夹具增长而腐烂；而"生成器能配出几对"是磁盘上的事实。
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("gen_golden", GENERATOR)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    pairs, problems = module.discover_pairs()
+    assert problems == [], problems
+    return len(pairs)
+
+
 def test_golden_directory_is_not_empty():
     """非空跑自证：一份 golden 都没有时，本文件的断言什么也没证明。"""
-    assert len(golden_files()) == 27, (
-        "应有 27 份 IR golden（19 规则对 + 4 反例 + 4 不可表达），实际 %d" % len(golden_files())
+    expected = expected_golden_count()
+    assert expected >= 28, "配对数量异常偏少（%d）：夹具被删了？" % expected
+    assert len(golden_files()) == expected, (
+        "应有 %d 份 IR golden（每对夹具一份），实际 %d" % (expected, len(golden_files()))
     )
-    assert len(policy_files()) == 27, (
-        "应有 27 份 policy golden（与 IR 一一对应），实际 %d" % len(policy_files())
+    assert len(policy_files()) == expected, (
+        "应有 %d 份 policy golden（与 IR 一一对应），实际 %d" % (expected, len(policy_files()))
     )
 
 
@@ -179,7 +196,7 @@ def test_readme_golden_table_is_bidirectional():
 
 
 def test_readme_registers_policy_goldens_as_generated():
-    """M3 收尾：README 必须把七档矩阵登记成已生成，且盘上确实有 27 份。
+    """README 必须把七档矩阵登记成已生成，且盘上份数与配对数量一致。
 
     反向断言：不得再写"待 M3"——没生成却登记成"已生成"会被文件数抓；
     生成了却还写"待 M3"会让承诺-证据台账滞后。
@@ -189,7 +206,7 @@ def test_readme_registers_policy_goldens_as_generated():
     assert "待 M3" not in text
     assert "policy-*.json" in text or "policy-<dir>-<slug>.json" in text
     assert "七档" in text
-    assert len(policy_files()) == 27
+    assert len(policy_files()) == expected_golden_count()
 
 
 def test_golden_is_consistent_across_two_generator_runs():

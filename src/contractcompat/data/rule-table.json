@@ -1,7 +1,12 @@
 {
   "schema_version": 1,
   "notes": "规则表是数据不是代码：命中条件与修复动作在此登记，rules.py 只加载与求值。口径唯一定义在 data/README.md §4.3。",
-  "severity_values": ["breaking", "runtime-dependent", "non-breaking"],
+  "severity_values": [
+    "breaking",
+    "runtime-dependent",
+    "non-breaking"
+  ],
+  "severity_when_allowed": "non-breaking",
   "rules": [
     {
       "rule_id": "R1",
@@ -30,16 +35,29 @@
       "rule_id": "R2",
       "name": "TYPE_CHANGED",
       "default_severity": "breaking",
+      "severity_by_detail": {
+        "union_widened": "non-breaking",
+        "wire_compatible": "runtime-dependent",
+        "promotion": "runtime-dependent",
+        "widened": "runtime-dependent"
+      },
       "repair_action": "bump-and-version",
       "formats": {
         "proto": {
           "applies": true,
           "evidence": "wire_incompatible_type_change",
+          "evidence_by_detail": {
+            "wire_compatible": "wire_compatible_type_change"
+          },
           "repair_hint": "保留旧字段号与原类型，新增字段号承载新类型"
         },
         "avro": {
           "applies": true,
           "evidence": "type_or_logical_type_change",
+          "evidence_by_detail": {
+            "union_widened": "union_branch_added",
+            "union_narrowed": "union_branch_removed"
+          },
           "repair_hint": "使用 union 并保留旧类型分支：[\"null\", \"string\", \"int\"]"
         },
         "jsonschema": {
@@ -81,16 +99,29 @@
         "proto": {
           "applies": true,
           "evidence": "enum_value_removed_or_renamed",
+          "evidence_by_kind": {
+            "enum_widened": "enum_value_added",
+            "enum_renumbered": "enum_value_renumbered"
+          },
           "repair_hint": "保留旧枚举值并标 deprecated，或保留编号占位"
         },
         "avro": {
           "applies": true,
           "evidence": "symbol_removed",
+          "evidence_by_kind": {
+            "enum_widened": "symbol_added",
+            "enum_renumbered": "symbol_renumbered",
+            "enum_changed": "symbol_set_changed"
+          },
           "repair_hint": "保留旧 symbol；如需收窄，先确认数据流中从未出现"
         },
         "jsonschema": {
           "applies": true,
           "evidence": "enum_list_narrowed",
+          "evidence_by_kind": {
+            "enum_widened": "enum_list_widened",
+            "enum_changed": "enum_list_changed"
+          },
           "repair_hint": "保留旧取值，或用 oneOf 兼容新旧集合"
         }
       }
@@ -104,6 +135,9 @@
         "proto": {
           "applies": true,
           "evidence": "field_number_reused_or_conflicts_with_reserved",
+          "evidence_by_detail": {
+            "cross_message_reuse": "field_number_reused_across_messages"
+          },
           "repair_hint": "reserved {number};   // 旧号永久保留，新字段用新号"
         },
         "avro": {
@@ -166,6 +200,10 @@
     }
   ],
   "runtime_dependent_templates": {
+    "R2": {
+      "why_static_breaking": "类型只在单一方向上可解析（旧值能被新类型容纳，或反之）；反方向写入的值在静态上就落在对侧 schema 之外。",
+      "what_would_trigger": "当反方向真的写入越界值时才会失败（例如 Avro int→long 后仍写入超出 int 范围的值、JSON Schema integer→number 后写入非整数、Protobuf wire 兼容组内改类型后写入语义不同的值）；若数据流取值始终落在兼容范围内，则线上不会触发。"
+    },
     "R4": {
       "why_static_breaking": "枚举取值集合被收窄；按旧 schema 写入的、含被删取值的历史数据在新 schema 下不可读。",
       "what_would_trigger": "当数据流中出现被删除的枚举取值时（含历史数据重放）才会真正失败；若该取值从未写入，则线上不会触发。"

@@ -6,16 +6,16 @@
 
 `compat <old> <new> --policy backward` —— 两个文件、一条命令、零 registry、零网络、零 Kafka。
 
-**当前版本**：`0.1.0.dev0`（M0 骨架 + M1 数据先行 + M2 统一 IR 收口 + M3 方向性判定核：
-参数面、退出码契约、规范报告层、三解析器、`--emit-ir`、**七档 policy 与方向性判定**已可跑；
-七类规则命中与归因在 M4–M5 落地，届时 `findings[*].severity` 才有值）。
+**当前版本**：`0.1.0.dev0`（M0 骨架 + M1 数据先行 + M2 统一 IR 收口 + M3 方向性判定核 +
+M4 破例规则库：参数面、退出码契约、规范报告层、三解析器、`--emit-ir`、七档 policy、
+**七类规则命中与三值 `severity`** 已可跑；归因（`blast_radius`）待 M5）。
 
-> 现在就能看的：`compat <old> <new> --policy backward` 已出**真判定**（`verdict` + 每条差异项的
-> `direction`）；`--emit-ir` 把三种格式归一到**同一份 IR（规范 JSON + digest）**；
-> `--emit-policy` 导出方向事实与七档矩阵（policy golden 的唯一入口）。
-> `data/fixtures/` 有 19 对规则夹具 + 4 条反例 + 4 条不可表达用例，`data/golden/` 有
-> 27 份 IR golden + 27 份 policy golden（`py data/tools/gen_golden.py --check` 可逐字节复算）。
-> 规则命中（`severity`）与归因仍待 M4 / M5，未实现路径一律退出码 3，**不返回 0**。
+> 现在就能看的：`compat <old> <new> --policy backward` 出**真判定**（`verdict` + 每条差异项的
+> `direction` + 命中规则的 `rule_id` / `severity` / 证据形态 / 修复动作）；`--emit-ir` 把三种格式
+> 归一到**同一份 IR（规范 JSON + digest）**；`--emit-policy` 导出方向事实与七档矩阵。
+> `data/fixtures/` 有 20 对规则夹具 + 4 条反例 + 4 条不可表达用例，`data/golden/` 有
+> 28 份 IR golden + 28 份 policy golden（`py data/tools/gen_golden.py --check` 可逐字节复算）。
+> 归因（`blast_radius`，M5）仍未实现：给 `--deploy-order` 走退出码 3，**不返回 0**。
 
 ## 为什么需要它
 
@@ -54,9 +54,8 @@ compat --version
 
 ## 三个最小复现
 
-> 规则命中（`findings[*].severity`）与归因（`blast_radius`）分别等 M4 / M5：现在表里这两列是 `—`，
-> 但 `verdict` 与 `direction` 已是真判定。给 `--deploy-order` 仍走 M5 的未实现路径（退出码 3，
-> **不返回 0**）。
+> 规则命中与三值 `severity` 已落地（M4）；归因 `blast_radius` 待 M5，所以表里那一列仍是 `—`，
+> 给 `--deploy-order` 走 M5 的未实现路径（退出码 3，**不返回 0**）。
 
 **Avro**：删字段
 
@@ -109,7 +108,7 @@ compat a.avsc b.avsc --policy backward --deploy-order producers-first   # 砸新
 
 ```bash
 py tools/check-sprint-layout.py       # 方法论布局门（任何新对话的第一件事）
-py -m pytest -q                       # 全量测试（双解释器各 261 项）
+py -m pytest -q                       # 全量测试（双解释器各 325 项）
 py data/tools/gen_fixtures.py --check # fixture 位级复算（.pb 是二进制，逐字节比）
 py data/tools/gen_golden.py --check   # IR + policy golden 逐字节复算（生成器只调 CLI）
 ```
@@ -124,7 +123,7 @@ py data/tools/gen_golden.py --check   # IR + policy golden 逐字节复算（生
 | M1 | ✅ 已完成（2026-10-20） |
 | M2 | ✅ 已完成（2026-10-20） |
 | M3 | ✅ 已完成（2026-10-20） |
-| M4 | ⬜ 未开始 |
+| M4 | ✅ 已完成（2026-10-20） |
 | M5 | ⬜ 未开始 |
 | M6 | ⬜ 未开始 |
 

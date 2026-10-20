@@ -29,6 +29,7 @@ __all__ = [
     "DiffResult",
     "resolve_policy",
     "mapping_table",
+    "allows",
     "diff",
     "judge",
 ]
@@ -641,7 +642,14 @@ def _enum_direction(old_field, new_field):
 # ── 七档聚合：direction × policy → verdict ─────────────────────────────────
 
 
-def _policy_allows(policy_name, direction):
+def allows(policy_name, direction):
+    """该 policy 是否接受这个方向（`none` 不判定 → 一律接受）。
+
+    M3 的 `judge` 与 M4 的 `rules` 共用这一份口径：规则层判 severity 时也要问
+    "这能不能被当前 policy 接受"，两处各写一份迟早漂移。
+    """
+    if policy_name == "none":
+        return True  # 只列差异、不判定：没有"不被允许"的方向
     if policy_name in ("backward", "backward-transitive"):
         return direction in ("BACKWARD_OK", "BOTH_OK")
     if policy_name in ("forward", "forward-transitive"):
@@ -681,6 +689,6 @@ def judge(differences, policy, history=()):
 
     for group in groups:
         for item in group:
-            if not _policy_allows(policy, item.get("direction")):
+            if not allows(policy, item.get("direction")):
                 return "breaking"
     return "compatible"

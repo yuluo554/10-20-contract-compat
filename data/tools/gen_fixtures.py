@@ -176,21 +176,33 @@ def render_proto_source(spec):
 PACKAGE = "example.invalid.contracts"
 
 
-def proto(order_fields, enums=(), message="Order", reserved_ranges=(), reserved_names=(), oneofs=(), syntax="proto3"):
+def proto(order_fields, enums=(), message="Order", reserved_ranges=(), reserved_names=(), oneofs=(), syntax="proto3", extra_messages=()):
+    """最小 proto 文件；``extra_messages`` 用来演 R5 的文件级面（跨 message 同号）。"""
+    messages = [
+        {
+            "name": message,
+            "fields": list(order_fields),
+            "oneofs": list(oneofs),
+            "reserved_ranges": list(reserved_ranges),
+            "reserved_names": list(reserved_names),
+        }
+    ]
+    for item in extra_messages:
+        messages.append(
+            {
+                "name": item["name"],
+                "fields": list(item.get("fields", ())),
+                "oneofs": list(item.get("oneofs", ())),
+                "reserved_ranges": list(item.get("reserved_ranges", ())),
+                "reserved_names": list(item.get("reserved_names", ())),
+            }
+        )
     return {
         "file": "order.proto",
         "package": PACKAGE,
         "syntax": syntax,
         "enums": list(enums),
-        "messages": [
-            {
-                "name": message,
-                "fields": list(order_fields),
-                "oneofs": list(oneofs),
-                "reserved_ranges": list(reserved_ranges),
-                "reserved_names": list(reserved_names),
-            }
-        ],
+        "messages": messages,
     }
 
 
@@ -386,6 +398,31 @@ add_pair(
             {"name": "total_amount", "number": 2, "type": "int64"},  # 2 号在 reserved 里
         ],
         reserved_ranges=[(2, 3)],
+    ),
+    "pb",
+)
+# R5 的文件级面：**跨 message** 复用（buf 不查的那一格）。
+# 旧侧 `Order.total_amount = 2` 退休且未 reserved；新侧 `Refund` 用 2 号承载另一个字段。
+add_pair(
+    "proto", "r5-cross-message-reuse", "proto",
+    proto(
+        [
+            {"name": "order_id", "number": 1, "type": "string"},
+            {"name": "total_amount", "number": 2, "type": "int64"},
+        ],
+        extra_messages=[{"name": "Refund", "fields": [{"name": "refund_id", "number": 1, "type": "string"}]}],
+    ),
+    proto(
+        [{"name": "order_id", "number": 1, "type": "string"}],
+        extra_messages=[
+            {
+                "name": "Refund",
+                "fields": [
+                    {"name": "refund_id", "number": 1, "type": "string"},
+                    {"name": "amount", "number": 2, "type": "int64"},  # 2 号换了 message 也换了含义
+                ],
+            }
+        ],
     ),
     "pb",
 )
