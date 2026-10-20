@@ -24,7 +24,7 @@ dynamic = ["version"]
 proto = ["protobuf>=3.20"]
 # dev 带上 protobuf：否则 `gen_fixtures.py --check` / `gen_golden.py --check` 在 CI 里会被跳过，
 # 而"跳过"与"通过"在日志里长得一样——那正是本项目要避免的形态。
-dev = ["pytest>=7", "protobuf>=3.20"]
+dev = ["pytest>=7", "protobuf>=3.20", "pyyaml>=5.4"]
 
 [project.scripts]
 compat = "contractcompat.cli:main"
