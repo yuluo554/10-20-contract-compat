@@ -121,6 +121,16 @@ FOUR_STATE_PAIR = ("proto", "r1-field-removed")
 FOUR_STATE_ORDERS = ("consumers-first", "producers-first", "simultaneous", "replay")
 
 
+def _normalize_lf(stdout):
+    """把 CLI 输出归一为 LF 行尾。
+
+    canonical 冻结契约是"换行一律 ``\\n``"，但 Windows 文本流会把 ``\\n`` 翻译成
+    ``\\r\\n``（M6 首推时 Linux CI 因此报 118 处漂移）。生成端统一归一，
+    golden 的字节才与解释器/平台无关。
+    """
+    return stdout.replace(b"\r\n", b"\n")
+
+
 def _run_cli(old_rel, new_rel, extra=()):
     """调用**生产 CLI**产出规范 JSON；返回 ``(exit_code, stdout_bytes, stderr_text)``。"""
     command = [
@@ -140,7 +150,7 @@ def _run_cli(old_rel, new_rel, extra=()):
     )
     return (
         completed.returncode,
-        completed.stdout,
+        _normalize_lf(completed.stdout),
         completed.stderr.decode("utf-8", "replace"),
     )
 
