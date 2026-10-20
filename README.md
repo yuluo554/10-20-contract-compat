@@ -128,10 +128,10 @@ py data/tools/gen_golden.py --check   # IR + policy + 端到端 golden 逐字节
 | M3 | ✅ 已完成（2026-10-20） |
 | M4 | ✅ 已完成（2026-10-20） |
 | M5 | ✅ 已完成（2026-10-20） |
-| M6 | ⬜ 未开始 |
+| M6 | ✅ 已完成（2026-10-20，v0.1.0 发布） |
 
-CI 状态：**本地等价校验（未接远端，CI 待首推验证）**——双解释器 pytest + 布局门 + CLI 冒烟在 M0 已跑；
-GitHub Actions 工作流已落盘但尚未执行过。
+CI 状态：**GitHub Actions 实跑全绿（2026-10-20 首推）**——py3.12/ubuntu + py3.12/py3.8/windows 三矩阵各 357 passed；
+发布：`v0.1.0`（tag + Release 附源码包与 SHA256SUMS，见 `plan/RELEASE-M6.md`）。
 
 ## 许可
 
