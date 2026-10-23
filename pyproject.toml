@@ -7,6 +7,11 @@ name = "contractcompat"
 description = "跨格式契约兼容性判定器：把 Avro / Protobuf / JSON Schema 归一到同一套判定语汇"
 readme = "README.md"
 requires-python = ">=3.8"
+# 已知 deadline（DEC-4 乙案）：PEP 639 要求 license 写成 SPDX 字符串（`license = "MIT"`），
+# 而改写需要 setuptools>=77 —— 该版本 requires-python >=3.9。本仓 requires-python = ">=3.8"
+# 且 CI 有 py3.8 腿（实测 py3.8 里 `pip download "setuptools>=77"` → No matching distribution），
+# 二者不可兼得。当前表形态只产生构建期 SetuptoolsDeprecationWarning（不阻塞），
+# **2027-02-18 起会硬失败**；届时须二选一：抬 floor 到 3.12（同时删 3.8 腿）或放弃 3.8。
 license = { text = "MIT" }
 authors = [{ name = "yuluo554" }]
 keywords = ["schema", "compatibility", "avro", "protobuf", "json-schema", "ci"]
