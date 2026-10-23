@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""布局门的变异验证脚本（8 组）：故意弄坏一个必备件，门必须变红；还原后必须恢复全绿。
+"""布局门的变异验证脚本（9 组）：故意弄坏一个必备件，门必须变红；还原后必须恢复全绿。
 
 为什么要有这个脚本：**门跑了且绿** 不等于 **门里每条判据都被证伪过一次**。
 一条断言只在"删掉被测对象仍绿"时才暴露自己是假门。
@@ -11,7 +11,7 @@
   ③ 还原后 assert 字节与原始完全一致（并清掉残留备份）。
 
 用法：``py tools/verify-layout-gate.py``
-退出码：0 = 8 组全红且还原后全绿；1 = 有变异没红（假门）；2 = 用法错误。
+退出码：0 = 9 组全红且还原后全绿；1 = 有变异没红（假门）；2 = 用法错误。
 """
 
 from __future__ import print_function
@@ -188,6 +188,24 @@ def _m8():
         marker = "## 强制布局"
         assert marker in text, "锚点缺失"
         return text.replace(marker, "（发布门：`py tools/check-release.py`）\n\n" + marker, 1)
+
+    return mutate(rel, transform)
+
+
+@mutation("M9 删掉 plan/00 里的 CI run 号（CI_CLAIM 应判「声称实跑却无 run id」）", "LAYOUT.CI_CLAIM")
+def _m9():
+    """靶子必须落在**描述行**（首格不是 M<数字>），那才是 LAYOUT.CI_CLAIM 的扫描面。
+
+    只删 run id、保留「已实跑」字样：判据若写成"未实跑才要求 run id"，本组永远造不出红。
+    """
+    rel = "plan/00-README总览.md"
+
+    def transform(text):
+        marker = "run `39457916512`"
+        assert marker in text, "锚点缺失：plan/00 里找不到 CI run 号"
+        mutated = text.replace(marker, "run「已脱敏」", 1)
+        assert "已实跑" in mutated, "变异把『已实跑』也改掉了，证明不了 CI_CLAIM"
+        return mutated
 
     return mutate(rel, transform)
 

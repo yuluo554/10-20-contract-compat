@@ -14,6 +14,7 @@
   LAYOUT.HANDOFFS     每个 ✅ 里程碑有下一棒交接单，且七节齐
   LAYOUT.GAPS         plan/06 缺口列不得仍挂着已 ✅ 的里程碑
   LAYOUT.RELEASE      最后一个里程碑 ✅ 后，发布留档两栏 + 覆盖对账小节
+  LAYOUT.CI_CLAIM     文档声称 CI「已实跑 / 未实跑」时必须给出 run 号（或明说无远端）
 
 已知本条判据尚未被证伪：LAYOUT.RELEASE 在最后一个里程碑（M6）翻 ✅ 之前不适用，
 因此它要到 M6 才能做变异验证——M6 收尾必须补"M6 删覆盖对账节 / M8 去掉 §二 的 tag 后标记"
@@ -27,7 +28,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 checks = []
-scanned = {"docs": 0, "handoffs": 0, "copies": 0, "doc_tools": 0, "gaps_cells": 0}
+scanned = {"docs": 0, "handoffs": 0, "copies": 0, "doc_tools": 0, "gaps_cells": 0, "ci_claim_lines": 0}
 
 
 def add(check_id, ok, detail):
@@ -299,6 +300,59 @@ def check_release_doc(done, planned_last):
     )
 
 
+#: "声称 CI 状态"的描述行（**不是**里程碑状态行）：scope 与 LAYOUT.STATUS 互补。
+#: LAYOUT.STATUS 只认首格是 `M<数字>` 的行；`plan/00:31` 那种首格是文件路径的行
+#: 从来不在任何判据内——这就是它能把"四腿 / 未实跑"写了一整个里程碑的原因（D4）。
+#: 只认**结论性短语**，不认"首推"这类历史叙事（那会把"首推两轮红"的复盘也判红）。
+#: 还必须同行提到 CI：覆盖对账表的**三态词汇表**（实现 / 不适用+理由 / 待首推）里也有
+#: "待首推"三个字，那是定义不是声明——要求同行有 `CI` 才能把它排除。
+CI_CLAIM_SUBJECT = re.compile(r"CI|workflow")
+CI_CLAIM_CLAIMED = re.compile(r"已实跑|实跑全绿|实跑绿")
+CI_CLAIM_DENIED = re.compile(r"未实跑|待首推|尚未执行过")
+CI_CLAIM_RUN_ID = re.compile(r"run\s*`?\d{6,}")
+
+
+def check_ci_claim():
+    """声称 CI 跑过（或没跑过）的行，必须能落到一个 run 号上。
+
+    判据形状（窄，避免稀释 LAYOUT.STATUS）：
+      - 出现「已实跑 / 实跑全绿」⇒ 同行必须出现 `run <id>`；
+      - 出现「未实跑 / 待首推 / 尚未执行过」⇒ 必须同行给 run 号或明说"无远端"
+        （否则这句"没跑"无法被核验，也无法区分"真没跑"与"忘了更新"）。
+    扫描面 = 全部 plan/*.md + README.md 的行，因此**描述行**也在内（D4 的漏洞正是它）。
+    """
+    docs = ["README.md"] + [
+        "plan/" + name for name in sorted(os.listdir(os.path.join(ROOT, "plan"))) if name.endswith(".md")
+    ]
+    scanned["ci_claim_lines"] = 0
+    bad = []
+    for rel in docs:
+        text = read(rel)
+        if text is None:
+            continue
+        for number, line in enumerate(text.splitlines(), 1):
+            if not CI_CLAIM_SUBJECT.search(line):
+                continue  # 覆盖对账表的"实现 / 不适用 / 待首推"是词汇定义，不是 CI 声明
+            has_run = bool(CI_CLAIM_RUN_ID.search(line))
+            if CI_CLAIM_DENIED.search(line):
+                scanned["ci_claim_lines"] += 1
+                if not has_run and "无远端" not in line and "未接远端" not in line:
+                    bad.append("%s:%d 声称 CI 未实跑但没说原因，也没给 run 号" % (rel, number))
+                continue
+            if CI_CLAIM_CLAIMED.search(line):
+                scanned["ci_claim_lines"] += 1
+                if not has_run:
+                    bad.append("%s:%d 声称 CI 已实跑但没有 run 号" % (rel, number))
+    if not scanned["ci_claim_lines"]:
+        add("LAYOUT.CI_CLAIM", False, "文档里 0 行 CI 状态声明——判据是空的（阳性对照失败）")
+        return
+    add(
+        "LAYOUT.CI_CLAIM",
+        not bad,
+        "；".join(bad) if bad else "%d 行 CI 声明全部带 run 号 / 原因" % scanned["ci_claim_lines"],
+    )
+
+
 def run(name, function, *args):
     """永不崩：被检查对象缺失 / 形态异常时记一条 FAIL 并继续（否则 rc=1 却一条结论都没跑完）。"""
     try:
@@ -326,6 +380,7 @@ def main(argv):
     run("LAYOUT.HANDOFFS", check_handoffs, done, planned_last)
     run("LAYOUT.GAPS", check_stale_gaps, done)
     run("LAYOUT.RELEASE", check_release_doc, done, planned_last)
+    run("LAYOUT.CI_CLAIM", check_ci_claim)
 
     failed = [item for item in checks if not item[1]]
     sys.stdout.write("布局门（方法论装订） · 判据只落仓库内文件\n")

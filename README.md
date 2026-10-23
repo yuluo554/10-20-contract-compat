@@ -130,7 +130,8 @@ py data/tools/gen_golden.py --check   # IR + policy + 端到端 golden 逐字节
 | M5 | ✅ 已完成（2026-10-20） |
 | M6 | ✅ 已完成（2026-10-20，v0.1.0 发布） |
 
-CI 状态：**GitHub Actions 实跑全绿（2026-10-20 首推）**——py3.12/ubuntu + py3.12/py3.8/windows 三矩阵各 357 passed；
+CI 状态：**GitHub Actions 实跑全绿**——run `39457916512` 三矩阵各 357 passed（py3.12/ubuntu + py3.12/py3.8/windows；
+镜像 `ubuntu-24.04`，首推 2026-10-20）；
 发布：`v0.1.0`（tag + Release 附源码包与 SHA256SUMS，见 `plan/RELEASE-M6.md`）。
 
 ## 许可

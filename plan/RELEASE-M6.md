@@ -36,7 +36,7 @@
 | 检查项 | 结论 | 证据 |
 |---|---|---|
 | README 三场景在仓库外干净环境逐条跑通、退出码符合声明语义 | 实现 | §一"干净环境"行；Avro r1 exit 1、Proto r5 exit 1、JSON Schema r3 forward exit 1、四联四 radius |
-| README 命令可被 parser 反射解析 | 实现 | `tests/test_readme_gate.py` 28 项 |
+| README 命令可被 parser 反射解析 | 实现 | `tests/test_readme_gate.py` = 4 条固定断言 + README 中 `compat` 命令数（现 8 条）= **12 项（动态值**，随 README 命令数漂移，不要写死） |
 | README 提到的产物名真在 Release 里 | 实现 | Release assets：tar.gz + SHA256SUMS；golden 复算命令在包内可跑 |
 | 版本四处一致 | 实现 | §一"版本四处一致"行（dev0 翻转后重验） |
 | 报告无绝对路径/时间戳/主机名 | 实现 | `tests/test_golden.py` 无绝对路径断言扩到 `cli-*`；golden 复算跨机逐字节一致本身即证明 |
@@ -44,7 +44,7 @@
 | tag 后只含非交付面提交；交付面零差异 | 实现 | `git log v0.1.0..main` 为空；tag 即 HEAD |
 | 发布留档两栏 + 阶段 7 覆盖对账表 | 实现 | 本文件 |
 | 布局门在收尾棒跑绿（含 LAYOUT.RELEASE 变异验证） | 实现 | `py tools/check-sprint-layout.py` 全绿；`LAYOUT.RELEASE` 两组变异见下 |
-| CI 实跑 | 实现（曾"待首推"） | 首推后实跑：修复两轮，终态 3 矩阵全绿（§二） |
+| CI 实跑 | 实现（曾「待首推」） | 首推后实跑：修复两轮，终态 run `39455865945`（`main`）/ `39455885096`（`v0.1.0`）3 矩阵全绿（§二） |
 | 干净 clone 按 README 跑通 | 实现（曾缺口） | §一"干净环境"行 |
 
 ### LAYOUT.RELEASE 变异验证（判据证伪）

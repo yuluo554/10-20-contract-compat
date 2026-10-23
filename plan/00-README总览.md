@@ -28,8 +28,8 @@
 | pyproject.toml / src/contractcompat/ / rules/ / tests/ | 可安装 CLI、五模块（参数面 + 退出码契约 + 三解析器 + 方向性判定核 + 规则库 + 归因）、规则表、测试（357 项） | ✅ M0 骨架 + M1–M5 |
 | tools/check-sprint-layout.py | 方法论布局门（8 组变异验证通过） | ✅ M0 |
 | tools/verify-layout-gate.py | 布局门的变异验证脚本（门自身的证伪） | ✅ M0 |
-| .github/workflows/ci.yml | CI 四腿矩阵（本地 YAML 解析通过，**未实跑**） | ✅ M0（待首推验证） |
-| data/fixtures/{proto,avro,jsonschema,negatives}/ | 三格式最小 fixture：19 对规则夹具（21 格中 18 格有夹具 + 3 格 N/A 结论）+ 4 反例 + 4 不可表达 | ✅ M1 |
+| .github/workflows/ci.yml | CI 三腿矩阵（`matrix = os × py`，`exclude: ubuntu × 3.8`）；**已实跑**：run `39457916512` 三腿全绿（各 357 passed，镜像 `ubuntu-24.04`） | ✅ M0（首推 + M6 实跑验证） |
+| data/fixtures/{proto,avro,jsonschema,negatives}/ | 三格式最小 fixture：20 对规则夹具（21 格中 18 格有夹具 + 3 格 N/A 结论）+ 4 反例 + 4 不可表达 | ✅ M1 |
 | data/golden/ | IR 形态 golden ×28 + policy 判定 golden ×28 + 端到端 cli-*.md/json ×62 + 台账 | ✅ M1（IR）+ M3（policy）+ M5（端到端） |
 | data/tools/ | `gen_fixtures.py`（`.pb` 程序化构造 + `--check`）、`gen_golden.py`（只调 CLI + `--check`） | ✅ M1 |
 | plan/RELEASE-M6.md | 发布留档（tag 时点事实 / tag 后追加事实两栏） | ✅ M6（两栏 + 覆盖对账 + 判据变异验证） |
