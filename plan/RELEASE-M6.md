@@ -68,11 +68,11 @@
 |---|---|
 | 版本 | `0.1.1`（单一来源 `src/contractcompat/__init__.py:7`）；`pyproject.toml` 走 `dynamic` |
 | 交付面变更 | D1 缺件态退出码判据（`parsers/__init__.py`）+ 全量参数化测试；文档诚实化 4 处；CI actions v7；布局门新增 `LAYOUT.CI_CLAIM` |
-| 测试 | 干净 py3.12 = **421 passed**、干净 py3.8.8 = **421 passed**（基线 357，净增 64）；CI 三腿各 421 passed（run `39900355574`） |
+| 测试 | 干净 py3.12 = **421 passed**、干净 py3.8.8 = **421 passed**（基线 357，净增 64）；CI 三腿各 421 passed（run `39901547975` @ `633c654`） |
 | golden | 118 份；版本翻转后重生成 **62 份 `cli-*`**（含 `tool: contractcompat 0.1.1`）；`ir-*.json` / `policy-*.json` **零变动**；`--check` 全绿 |
 | fixture | 76 文件位级冻结，**零改动**；`--check` 全绿 |
 | 布局门 | `check-sprint-layout.py` 全绿；`verify-layout-gate.py` **9 组变异全红、还原后全绿**（新增 M9 = 删 run 号 → `LAYOUT.CI_CLAIM` 必红） |
-| CI | run `39900355574` @ `ab6807b` 三腿全 success；Node20 弃用注解 **0 条**（原 6 条） |
+| CI | run `39901547975` @ `633c654` 三腿全 success、各 421 passed；Node20 弃用注解 **0 条**（原 6 条） |
 | Release 形态 | **非 draft**（DEC-2 修正项，v0.1.0 曾误发为 draft） |
 
 ## 五、v0.1.1 tag 后追加
