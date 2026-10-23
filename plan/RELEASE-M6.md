@@ -79,7 +79,8 @@
 
 | 时间（2026-10-23） | 事实 |
 |---|---|
-| v0.1.0 处置 | 远端 `v0.1.0` 删除并重打到 `ab6807b`（DEC-2 甲案，用户点头）；旧附件 `af48996f…` 已不对应新 tag 树，按 `--clobber` 重建重传 |
-| 源码包 | 构建方式不变：`git archive v0.1.1 --prefix=contract-compat-0.1.1/` + `gzip -9n`，sha256 见 Release 说明与 `SHA256SUMS` |
+| v0.1.0 处置 | 远端 `v0.1.0` 删除并重打到 `17f438a`（DEC-2 甲案，用户点头；原指向 `0c7d28e`）；旧附件 `af48996f…` 已不对应新 tag 树，按 `--clobber` 重建重传为新值 `a7a90d7a…` |
+| ⚠ 重打 tag 的固有代价（如实登记） | `v0.1.0` 现在与 `v0.1.1` 指向**同一棵树**，因此 `contract-compat-0.1.0.tar.gz` 里的 `__version__` 是 **`0.1.1`**，不是 `0.1.0`。这不是缺陷而是"重打 tag 必须让发布物自洽"的直接后果：要让包内 README 的 M6 状态与 `plan/RELEASE-M6.md` 都在，tag 只能指向修复后的树。若将来要求"版本号 == tag 名"，唯一做法是发 `v0.1.2` 并接受 `v0.1.0` 一直是 draft/缺失 |
+| 源码包 | 构建方式不变：`git archive v0.1.1 --prefix=contract-compat-0.1.1/` + `gzip -9n`，sha256 `70047aa8…`；`v0.1.0` 为 `git archive v0.1.0 --prefix=contract-compat-0.1.0/` + `gzip -9n`，sha256 `a7a90d7a…` |
 | 可复现性 | 沿用 v0.1.0 已验证的手法（`git archive` + `gzip -9n`，不用 `tar`/`zip`）；重建 sha256 必须与附件一致 |
 | 自述 run 号的时点约定 | 树内 README / 本文件写的是**tag 前最后一次可核验的 run**（`39901855972` @ `f7dd762`）。tag 提交自身触发的 run 号无法预先写进树内（写它 → 新提交 → 新 run，循环），因此**tag 提交的 run 号写在 tag message 与 Release 说明里**；核验命令：`gh run list --commit <tag sha>` |
