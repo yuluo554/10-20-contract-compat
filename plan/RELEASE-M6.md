@@ -67,20 +67,21 @@
 | 项 | 事实 |
 |---|---|
 | 版本 | `0.1.1`（单一来源 `src/contractcompat/__init__.py:7`）；`pyproject.toml` 走 `dynamic` |
-| 交付面变更 | D1 缺件态退出码判据（`parsers/__init__.py`）+ 全量参数化测试；文档诚实化 4 处；CI actions v7；布局门新增 `LAYOUT.CI_CLAIM` |
-| 测试 | 干净 py3.12 = **421 passed**、干净 py3.8.8 = **421 passed**（基线 357，净增 64）；CI 三腿各 421 passed（run `39901855972` @ `f7dd762`） |
+| 交付面变更 | D1 缺件态退出码判据（`parsers/__init__.py`）+ 全量参数化测试；文档诚实化 4 处；CI actions v7；布局门新增 `LAYOUT.CI_CLAIM`；DEC-4 乙案 = `pyproject.toml` 的 `license` 上方加 PEP 639 deadline 注释（**行为零变化**，`license` 与 `requires-python` 值均未改） |
+| 测试 | 干净 py3.12 = **421 passed**、干净 py3.8.8 = **421 passed**（基线 357，净增 64）；CI 三腿各 421 passed（run `39903601611` @ `7332c64`） |
 | golden | 118 份；版本翻转后重生成 **62 份 `cli-*`**（含 `tool: contractcompat 0.1.1`）；`ir-*.json` / `policy-*.json` **零变动**；`--check` 全绿 |
 | fixture | 76 文件位级冻结，**零改动**；`--check` 全绿 |
 | 布局门 | `check-sprint-layout.py` 全绿；`verify-layout-gate.py` **9 组变异全红、还原后全绿**（新增 M9 = 删 run 号 → `LAYOUT.CI_CLAIM` 必红） |
-| CI | run `39901855972` @ `f7dd762` 三腿全 success、各 421 passed；Node20 弃用注解 **0 条**（原 6 条） |
+| CI | run `39903601611` @ `7332c64` 三腿全 success、各 421 passed；Node20 弃用注解 **0 条**（原 6 条） |
 | Release 形态 | **非 draft**（DEC-2 修正项，v0.1.0 曾误发为 draft） |
 
 ## 五、v0.1.1 tag 后追加
 
 | 时间（2026-10-23） | 事实 |
 |---|---|
-| v0.1.0 处置 | 远端 `v0.1.0` 删除并重打到 `17f438a`（DEC-2 甲案，用户点头；原指向 `0c7d28e`）；旧附件 `af48996f…` 已不对应新 tag 树，按 `--clobber` 重建重传为新值 `a7a90d7a…` |
-| ⚠ 重打 tag 的固有代价（如实登记） | `v0.1.0` 现在与 `v0.1.1` 指向**同一棵树**，因此 `contract-compat-0.1.0.tar.gz` 里的 `__version__` 是 **`0.1.1`**，不是 `0.1.0`。这不是缺陷而是"重打 tag 必须让发布物自洽"的直接后果：要让包内 README 的 M6 状态与 `plan/RELEASE-M6.md` 都在，tag 只能指向修复后的树。若将来要求"版本号 == tag 名"，唯一做法是发 `v0.1.2` 并接受 `v0.1.0` 一直是 draft/缺失 |
-| 源码包 | 构建方式不变：`git archive v0.1.1 --prefix=contract-compat-0.1.1/` + `gzip -9n`，sha256 `70047aa8…`；`v0.1.0` 为 `git archive v0.1.0 --prefix=contract-compat-0.1.0/` + `gzip -9n`，sha256 `a7a90d7a…` |
-| 可复现性 | 沿用 v0.1.0 已验证的手法（`git archive` + `gzip -9n`，不用 `tar`/`zip`）；重建 sha256 必须与附件一致 |
-| 自述 run 号的时点约定 | 树内 README / 本文件写的是**tag 前最后一次可核验的 run**（`39901855972` @ `f7dd762`）。tag 提交自身触发的 run 号无法预先写进树内（写它 → 新提交 → 新 run，循环），因此**tag 提交的 run 号写在 tag message 与 Release 说明里**；核验命令：`gh run list --commit <tag sha>` |
+| v0.1.0 处置 | `v0.1.0` 两次重打：`0c7d28e`（原）→ `17f438a`（DEC-2 甲案首轮）→ 本轮终值（见下"终值"行）。每轮都重建附件并 `--clobber` 重传 |
+| v0.1.1 重打（本轮收尾） | 首版 `v0.1.1` 指向 `17f438a`，但**该树的 `pyproject.toml` 没有 DEC-4 的注释**，而 Release 说明里承诺了它 ⇒ 自述与实物不符（正是本轮在修的缺陷类型，由执行方自己引入）。故重打 `v0.1.1` 到含 DEC-4 的提交，并同步重打 `v0.1.0` 使两者同树 |
+| ⚠ 重打 tag 的固有代价（如实登记） | `v0.1.0` 与 `v0.1.1` 指向**同一棵树**，因此 `contract-compat-0.1.0.tar.gz` 里的 `__version__` 是 **`0.1.1`**，不是 `0.1.0`。这不是缺陷而是"重打 tag 必须让发布物自洽"的直接后果：要让包内 README 的 M6 状态与 `plan/RELEASE-M6.md` 都在，tag 只能指向修复后的树。若将来要求"版本号 == tag 名"，唯一做法是发 `v0.1.2` |
+| 源码包（不变量） | `git archive <tag> --prefix=contract-compat-<ver>/` + `gzip -9n`（**`-n` 去时间戳，否则不可复现**）；可逐字节重建：同命令重跑必须得同 sha256 |
+| 当前数值的**落点**（台账不自指） | 本文件与 README **不再写 tarball 自身的 sha256 / 字节数**——台账在包里，写自身 sha 就会"改台账 → 变树 → 变 sha"死循环。当前值只出现在三处：① 仓库根 `dist/SHA256SUMS`（不入库）；② GitHub Release 说明；③ 该 tag 的 annotated message。核验：`curl -sL <asset_url> \| sha256sum` 与这三处对撞 |
+| 自述 run 号的时点约定 | 树内 README / 本文件写的是**tag 之前已实测、可点开核验的 run**。tag 提交自身触发的 run 号无法预先写进树内（写它 → 新提交 → 新 run，循环），因此**tag 提交的 run 号写在 tag message 与 Release 说明里**；核验命令：`gh run list --commit <tag sha>` |

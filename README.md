@@ -130,9 +130,10 @@ py data/tools/gen_golden.py --check   # IR + policy + 端到端 golden 逐字节
 | M5 | ✅ 已完成（2026-10-20） |
 | M6 | ✅ 已完成（2026-10-20，v0.1.0 发布；2026-10-23 发布面修复后重打 tag） |
 
-CI 状态：**GitHub Actions 实跑全绿**——run `39901855972`（@ `f7dd762`）三腿各 421 passed
+CI 状态：**GitHub Actions 实跑全绿**——run `39903601611`（@ `7332c64`）三腿各 421 passed
 （py3.12/ubuntu + py3.12/py3.8/windows，镜像 `ubuntu-24.04`；Node20 弃用注解 0 条）；
 发布：`v0.1.1`（tag + Release 附源码包与 SHA256SUMS，见 `plan/RELEASE-M6.md`）。
+核验本 tag 提交自身的 CI：`gh run list --commit <该 tag 的 sha>`（约定见 `plan/RELEASE-M6.md` §五）。
 
 ## 许可
 
