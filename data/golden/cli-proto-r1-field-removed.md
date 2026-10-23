@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **breaking**
 - 输入: old=`r1-field-removed-old.pb` ｜ new=`r1-field-removed-new.pb`
-- tool: contractcompat 0.1.0
+- tool: contractcompat 0.1.1
 
 ## 判定表（1 条）
 
@@ -11,4 +11,4 @@
 | R1 | 2 | breaking | FORWARD_OK | field_number_missing_without_reserved | OLD_CONSUMER | reserve |
 
 ---
-digest: `18bd3281bf921a7fe29bce637246b6700477fe80e7970ed896e02a8d5e9423a5`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `d63f56c5f47a498b3f125ee6aa2630f51c17b24ae69f8708cb3d89137dd59a08`（Markdown 是 JSON 的渲染视图，不参与 digest）

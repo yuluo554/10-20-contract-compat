@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **compatible**
 - 输入: old=`ir-unsupported-dependent-schemas-old.json` ｜ new=`ir-unsupported-dependent-schemas-new.json`
-- tool: contractcompat 0.1.0
+- tool: contractcompat 0.1.1
 
 ## 判定表（1 条）
 
@@ -19,4 +19,4 @@
 - `dependentSchemas` @ `/dependentSchemas` — 首期 IR 不建模 dependentSchemas：无法在不做正则/依赖求解的前提下枚举其语义
 
 ---
-digest: `9e8104ed56ed3b493e814e19b7e2343b55307cf81b7ddf836ef11abd37323e69`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `fcaa724c3b54834d02416b902f9347a90f763af9c411d1b6ea61dca1fe581614`（Markdown 是 JSON 的渲染视图，不参与 digest）

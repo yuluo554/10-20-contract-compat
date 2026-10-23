@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **compatible**
 - 输入: old=`add-optional-property-old.json` ｜ new=`add-optional-property-new.json`
-- tool: contractcompat 0.1.0
+- tool: contractcompat 0.1.1
 
 ## 判定表（1 条）
 
@@ -15,4 +15,4 @@
 - `R5` FIELD_NUMBER_REUSED — jsonschema：JSON Schema 无字段号概念（按属性名寻址），本规则不适用
 
 ---
-digest: `73f0b6e50d168ea282e362d41a17a83c2cf855368e95363ea778365dd747c56c`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `18e86fd781a633bbda6e7acdcedb205ec15a6a8f25476901229f4da86ec1750a`（Markdown 是 JSON 的渲染视图，不参与 digest）

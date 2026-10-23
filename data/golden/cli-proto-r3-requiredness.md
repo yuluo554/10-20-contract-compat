@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **compatible**
 - 输入: old=`r3-requiredness-old.pb` ｜ new=`r3-requiredness-new.pb`
-- tool: contractcompat 0.1.0
+- tool: contractcompat 0.1.1
 
 ## 判定表（1 条）
 
@@ -11,4 +11,4 @@
 | R3 | 2 | non-breaking | BACKWARD_OK | label_change_or_new_required_without_default | OLD_CONSUMER | add-default |
 
 ---
-digest: `1828bf1bf252e0c9ae3b5c731251237643c7566fbcd9405b76d28b8cc114f7ae`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `cefdfa052564095c575129c688601fdc994fd7b3f230836aa9fcc16ec72ad6cb`（Markdown 是 JSON 的渲染视图，不参与 digest）

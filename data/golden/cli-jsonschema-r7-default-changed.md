@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **compatible**
 - 输入: old=`r7-default-changed-old.json` ｜ new=`r7-default-changed-new.json`
-- tool: contractcompat 0.1.0
+- tool: contractcompat 0.1.1
 
 ## 判定表（2 条）
 
@@ -16,4 +16,4 @@
 - `R5` FIELD_NUMBER_REUSED — jsonschema：JSON Schema 无字段号概念（按属性名寻址），本规则不适用
 
 ---
-digest: `0ed82b93059be8c4c64f141e8906f86352cb49f2c41796ae3c487491204bf35f`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `cb66301278ee16cdb41993b5b8c8ff2166b4044152babd47926b64fed827ba5b`（Markdown 是 JSON 的渲染视图，不参与 digest）

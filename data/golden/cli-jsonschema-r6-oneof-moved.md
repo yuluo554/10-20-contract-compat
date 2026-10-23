@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **breaking**
 - 输入: old=`r6-oneof-moved-old.json` ｜ new=`r6-oneof-moved-new.json`
-- tool: contractcompat 0.1.0
+- tool: contractcompat 0.1.1
 
 ## 判定表（2 条）
 
@@ -20,4 +20,4 @@
 - `R6` @ `/properties/payment` — 静态必破：字段的 oneof 归属改变；静态上按旧 schema 写入的消息与新 schema 的成员约束不一致。 ｜ 触发条件：当消息体中确实携带被移动的成员时才会失败；若该成员在当前流量中从不出现，则线上不会触发。
 
 ---
-digest: `e3650707b3e28325df1f3c8fefc6ae35af71ddd28bb3661385444df667a1e8c6`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `7003d3d45bc0c78ab85e58cbf7f0aa49ef44fab808e972b580f7a34b3131644f`（Markdown 是 JSON 的渲染视图，不参与 digest）

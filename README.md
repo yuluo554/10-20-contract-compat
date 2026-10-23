@@ -6,7 +6,7 @@
 
 `compat <old> <new> --policy backward` —— 两个文件、一条命令、零 registry、零网络、零 Kafka。
 
-**当前版本**：`0.1.0`（M0 骨架 + M1 数据先行 + M2 统一 IR 收口 + M3 方向性判定核 +
+**当前版本**：`0.1.1`（M0 骨架 + M1 数据先行 + M2 统一 IR 收口 + M3 方向性判定核 +
 M4 破例规则库 + M5 归因与端到端报告：参数面、退出码契约、规范报告层、三解析器、`--emit-ir`、
 七档 policy、七类规则命中、三值 `severity`、**四态归因 `blast_radius`** 均已可跑）。
 
@@ -111,7 +111,7 @@ compat data/fixtures/avro/r1-field-removed-old.avsc data/fixtures/avro/r1-field-
 
 ```bash
 py tools/check-sprint-layout.py       # 方法论布局门（任何新对话的第一件事）
-py -m pytest -q                       # 全量测试（双解释器各 357 项）
+py -m pytest -q                       # 全量测试（双解释器各 421 收集 / 421 通过 / 0 跳过）
 py data/tools/gen_fixtures.py --check # fixture 位级复算（.pb 是二进制，逐字节比）
 py data/tools/gen_golden.py --check   # IR + policy + 端到端 golden 逐字节复算（生成器只调 CLI）
 ```
@@ -128,11 +128,11 @@ py data/tools/gen_golden.py --check   # IR + policy + 端到端 golden 逐字节
 | M3 | ✅ 已完成（2026-10-20） |
 | M4 | ✅ 已完成（2026-10-20） |
 | M5 | ✅ 已完成（2026-10-20） |
-| M6 | ✅ 已完成（2026-10-20，v0.1.0 发布） |
+| M6 | ✅ 已完成（2026-10-20，v0.1.0 发布；2026-10-23 发布面修复后重打 tag） |
 
-CI 状态：**GitHub Actions 实跑全绿**——run `39457916512` 三矩阵各 357 passed（py3.12/ubuntu + py3.12/py3.8/windows；
-镜像 `ubuntu-24.04`，首推 2026-10-20）；
-发布：`v0.1.0`（tag + Release 附源码包与 SHA256SUMS，见 `plan/RELEASE-M6.md`）。
+CI 状态：**GitHub Actions 实跑全绿**——run `39900355574` 三腿各 419 passed
+（py3.12/ubuntu + py3.12/py3.8/windows，镜像 `ubuntu-24.04`；Node20 弃用注解 0 条）；
+发布：`v0.1.1`（tag + Release 附源码包与 SHA256SUMS，见 `plan/RELEASE-M6.md`）。
 
 ## 许可
 

@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **compatible**
 - 输入: old=`r4-enum-narrowed-old.pb` ｜ new=`r4-enum-narrowed-new.pb`
-- tool: contractcompat 0.1.0
+- tool: contractcompat 0.1.1
 
 ## 判定表（1 条）
 
@@ -11,4 +11,4 @@
 | R4 | 2 | non-breaking | BACKWARD_OK | enum_value_removed_or_renamed | OLD_CONSUMER | bump-and-version |
 
 ---
-digest: `240535122680759a875a1bbaf477a12472bbab343c644acb8d323c875c237c3e`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `9b3bc7fdee03cebced3a75c6f528b4f9303b4bf286a591402920296db4225837`（Markdown 是 JSON 的渲染视图，不参与 digest）

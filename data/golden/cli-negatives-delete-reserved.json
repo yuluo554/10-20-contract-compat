@@ -1,5 +1,5 @@
 {
-  "digest": "2ee9dc351dfb433bbe827e4099da23acd8a85965359c0be6cfdaf1d5af40bb75",
+  "digest": "7a6e52969b503f7b42ccf662c0b30fe80698541ae1109b77206a3f26d4e4c5f9",
   "findings": [],
   "inputs": {
     "new": "delete-reserved-new.pb",
@@ -18,5 +18,5 @@
   },
   "tool": "contractcompat",
   "verdict": "compatible",
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

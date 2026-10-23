@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **compatible**
 - 输入: old=`ir-unsupported-patternproperties-old.json` ｜ new=`ir-unsupported-patternproperties-new.json`
-- tool: contractcompat 0.1.0
+- tool: contractcompat 0.1.1
 
 ## 判定表（1 条）
 
@@ -19,4 +19,4 @@
 - `patternProperties` @ `/patternProperties` — 首期 IR 不建模 patternProperties：无法在不做正则/依赖求解的前提下枚举其语义
 
 ---
-digest: `b7da4d4240af32619a33f3a26aa33c567a3a80617564417a842830fb1323ff92`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `5caf2b4f22544065d68f6bd435c8be6cb1415993fbf853fe73bae41c65c1626a`（Markdown 是 JSON 的渲染视图，不参与 digest）

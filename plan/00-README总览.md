@@ -25,7 +25,7 @@
 | plan/HANDOFF-M4.md | 第 4 棒（破例规则库）交接快照 | ✅ M3 收尾产出 |
 | data/README.md | 依据查证记录（三态）/ 数据源可获取性 / 合成数据纪律 / 数值口径（唯一定义处） | ✅ v1 |
 | README.md | 面向使用者的首屏：一句话定位、三条最小复现、已占位工具覆盖表摘录 | ✅ 骨架版（M6 定稿） |
-| pyproject.toml / src/contractcompat/ / rules/ / tests/ | 可安装 CLI、五模块（参数面 + 退出码契约 + 三解析器 + 方向性判定核 + 规则库 + 归因）、规则表、测试（357 项） | ✅ M0 骨架 + M1–M5 |
+| pyproject.toml / src/contractcompat/ / rules/ / tests/ | 可安装 CLI、五模块（参数面 + 退出码契约 + 三解析器 + 方向性判定核 + 规则库 + 归因）、规则表、测试（421 项） | ✅ M0 骨架 + M1–M5 |
 | tools/check-sprint-layout.py | 方法论布局门（8 组变异验证通过） | ✅ M0 |
 | tools/verify-layout-gate.py | 布局门的变异验证脚本（门自身的证伪） | ✅ M0 |
 | .github/workflows/ci.yml | CI 三腿矩阵（`matrix = os × py`，`exclude: ubuntu × 3.8`）；**已实跑**：run `39457916512` 三腿全绿（各 357 passed，镜像 `ubuntu-24.04`） | ✅ M0（首推 + M6 实跑验证） |

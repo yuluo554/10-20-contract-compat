@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **breaking**
 - 输入: old=`r5-cross-message-reuse-old.pb` ｜ new=`r5-cross-message-reuse-new.pb`
-- tool: contractcompat 0.1.0
+- tool: contractcompat 0.1.1
 
 ## 判定表（2 条）
 
@@ -12,4 +12,4 @@
 | R5 | Order.2 | breaking | NONE_OK | field_number_reused_across_messages | OLD_CONSUMER | reserve |
 
 ---
-digest: `41854dbb372728dc833565229246085ed7c683b2625e1bec339102bc05d8ea08`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `299274a7fe988304c5adb12eb8bc41642583bab4ea4c1a15e93386aa1cc12c1a`（Markdown 是 JSON 的渲染视图，不参与 digest）

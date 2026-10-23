@@ -1,5 +1,5 @@
 {
-  "digest": "2562b141ebd95103031f3c47ef697e1e4a0ee50bf967c4a6cc788616a6313c7c",
+  "digest": "a6bc805630601e910e6bf76286eec0372937802b322f89e13021425ee1776445",
   "findings": [
     {
       "blast_radius": "BOTH",
@@ -40,5 +40,5 @@
   },
   "tool": "contractcompat",
   "verdict": "breaking",
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

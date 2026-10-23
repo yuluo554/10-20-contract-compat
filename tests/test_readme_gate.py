@@ -88,3 +88,50 @@ def test_readme_fixture_paths_exist():
     assert paths, "README 里一条 fixture 路径都没抽到（示例被删了？）"
     missing = [path for path in paths if not os.path.isfile(os.path.join(ROOT, path.replace("/", os.sep)))]
     assert missing == [], "README 点名但磁盘缺失: %s" % missing
+
+
+#: README 里自述的测试数（"各 N 收集 / N 通过 / N 跳过"）。自述计数是**最容易腐烂的断言**：
+#: 加一条参数化用例就会漂，而没有任何门在看它。这条门锁的是**算术关系**——
+#: 收集数必须等于「通过数 + 跳过数」。只锁收集数的话，把通过数写成任意值仍然绿
+#: （同类仓库踩过这个坑：门只锁收集数，README 写「各 999 通过」也照样过）。
+SELF_REPORTED = re.compile(r"各\s*(\d+)\s*收集.*?(\d+)\s*通过.*?(\d+)\s*跳过")
+
+
+def test_readme_self_reported_test_count_arithmetic():
+    """README 自述的三个数必须自洽：收集 = 通过 + 跳过。"""
+    with open(README, "r", encoding="utf-8") as handle:
+        text = handle.read()
+    matches = SELF_REPORTED.findall(text)
+    assert matches, "README 里找不到自述测试数（『各 N 收集 / N 通过 / N 跳过』被改写了？）"
+    for collected, passed, skipped in matches:
+        collected, passed, skipped = int(collected), int(passed), int(skipped)
+        assert collected == passed + skipped, (
+            "README 自述的测试数不自洽：收集 %d ≠ 通过 %d + 跳过 %d" % (collected, passed, skipped)
+        )
+
+
+def test_readme_self_reported_count_matches_actual_collection():
+    """自述收集数必须等于真实收集数（`--co -q` 的末行）。
+
+    用**子进程**而不是 pytest 自己的 hook：hook 拿到的是"本文件加载后"的状态，
+    而同一次收集里本文件自己的参数化也参与计数——那会让这条门自证循环。
+    """
+    import subprocess
+    import sys
+
+    process = subprocess.run(
+        [sys.executable, "-X", "utf8", "-m", "pytest", "--co", "-q"],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1"),
+    )
+    output = process.stdout.decode("utf-8", "replace")
+    match = re.search(r"(\d+) tests? collected", output)
+    assert match, "收集数取不到（pytest --co -q 输出变了）：\n%s" % output[-2000:]
+    actual = int(match.group(1))
+
+    with open(README, "r", encoding="utf-8") as handle:
+        text = handle.read()
+    for collected, _, _ in SELF_REPORTED.findall(text):
+        assert int(collected) == actual, "README 自述 %s 项，实测收集 %d 项" % (collected, actual)

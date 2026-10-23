@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **breaking**
 - 输入: old=`r5-reserved-conflict-old.pb` ｜ new=`r5-reserved-conflict-new.pb`
-- tool: contractcompat 0.1.0
+- tool: contractcompat 0.1.1
 
 ## 判定表（1 条）
 
@@ -11,4 +11,4 @@
 | R5 | 2 | breaking | NONE_OK | field_number_reused_or_conflicts_with_reserved | OLD_CONSUMER | reserve |
 
 ---
-digest: `f4d6c4a398132ba36dc9aed4cbc89afe084e634a268c87f61749d8b632fc4eab`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `1f937083842e7ed272ca266ba712bf907b5f16c8209ba62ef3374fb93144a7c1`（Markdown 是 JSON 的渲染视图，不参与 digest）

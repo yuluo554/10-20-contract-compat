@@ -2,7 +2,7 @@
 
 - policy: `backward` ｜ verdict: **compatible**
 - 输入: old=`ir-unsupported-if-then-else-old.json` ｜ new=`ir-unsupported-if-then-else-new.json`
-- tool: contractcompat 0.1.0
+- tool: contractcompat 0.1.1
 
 ## 判定表（1 条）
 
@@ -19,4 +19,4 @@
 - `if` @ `/if` — 首期 IR 不建模 if/then/else 条件分支：需要约束求解，且会破坏「同一输入同一结论」的确定性
 
 ---
-digest: `9e703e0ecd7d7703e11d2bb684d89afccf5c2adf177a19a84350dfe265f56ac0`（Markdown 是 JSON 的渲染视图，不参与 digest）
+digest: `12b5fce569c5bc4ffacdc98549f6b5749dcefd676123f978192b27b9153c8c3a`（Markdown 是 JSON 的渲染视图，不参与 digest）
