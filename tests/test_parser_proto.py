@@ -21,6 +21,8 @@ from contractcompat.parsers.proto import parse_descriptor_set, protobuf_availabl
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURES = os.path.join(ROOT, "data", "fixtures", "proto")
+#: 全量扫描的根：`.pb` 不只在 `proto/`，`negatives/` 也有一对
+FIXTURES_ROOT = os.path.join(ROOT, "data", "fixtures")
 
 
 def fixture(name):
@@ -217,6 +219,63 @@ def no_protobuf(monkeypatch):
     monkeypatch.setattr(builtins, "__import__", fake_import)
 
 
+def _all_pb_files():
+    """`data/fixtures/**/*.pb` 的**全量**清单（排序固定，便于对日志）。
+
+    D1 的失败形态是"照着实现分支挑了个恰好通过的夹具"，所以这组用例必须由
+    **磁盘扫描**驱动：写死 slug 就会在下一次加夹具时悄悄少测。
+    """
+    found = []
+    for directory, _, names in os.walk(FIXTURES_ROOT):
+        for name in names:
+            if name.endswith(".pb"):
+                found.append(os.path.join(directory, name))
+    return sorted(found)
+
+
+def _pb_ids(paths):
+    return [os.path.relpath(path, FIXTURES_ROOT).replace(os.sep, "/") for path in paths]
+
+
+ALL_PB = _all_pb_files()
+
+
+def test_pb_fixture_scan_matches_the_documented_count():
+    """参数化的**自指守门**：扫描为空或少于台账数时，下面那组用例会"全绿但什么都没测"。"""
+    assert len(ALL_PB) == 20, "台账 = 20 份 .pb（avro 之外：proto 9 对 + negatives 1 对）"
+    assert sum(1 for path in ALL_PB if path.endswith("-old.pb")) == 10
+
+
+@pytest.mark.parametrize("path", ALL_PB, ids=_pb_ids(ALL_PB))
+def test_detect_format_without_protobuf_is_capability_error(path, no_protobuf):
+    """第一处：`parsers/__init__.detect_format` 的缺件态前置判据。
+
+    **全量参数化**（D1）：判据不许依赖"NUL 字节"这种巧合——20 份里 17 份可 UTF-8
+    解码、17 份不含 NUL，靠 NUL 判会有 8 对落到退出码 2。
+    """
+    with pytest.raises(CapabilityError) as caught:
+        detect_format(path)
+    assert "protobuf" in str(caught.value)
+
+
+@pytest.mark.parametrize("path", ALL_PB, ids=_pb_ids(ALL_PB))
+def test_cli_without_protobuf_exits_three(path, no_protobuf):
+    """第二处：CLI 真入口——缺件态是 3，不是 2（"环境给不了" ≠ "调用方写错"）。"""
+    code, _, err = run([path, path])
+    assert code == 3
+    assert "protobuf" in err
+
+
+@pytest.mark.parametrize("path", ALL_PB, ids=_pb_ids(ALL_PB))
+def test_descriptor_parses_without_the_stub(path):
+    """**阳性对照**：同一批 `.pb` 不装桩就必须真解析成功——否则上面两条只证明了"桩坏了"。"""
+    pytest.importorskip("google.protobuf")
+    ir = parse(path)
+    assert isinstance(ir, ContractIR)
+    assert ir.format == "proto"
+    assert ir.name == "Order"
+
+
 def test_protobuf_available_reports_importability(no_protobuf):
     """探针本身：桩下必须回答 False（阳性对照见下一条）。"""
     assert protobuf_available() is False
@@ -227,22 +286,6 @@ def test_protobuf_available_positive_control():
     assert protobuf_available() is True
 
 
-def test_detect_format_without_protobuf_is_capability_error(no_protobuf):
-    """第一处：`parsers/__init__._protobuf_module()` —— 二进制看起来像描述符但判不了。"""
-    path = fixture("r4-enum-narrowed-old.pb")  # 该 fixture 含 NUL 字节，能走到缺件态分支
-    with pytest.raises(CapabilityError) as caught:
-        detect_format(path)
-    assert "protobuf" in str(caught.value)
-
-
-def test_parse_without_protobuf_exits_three(no_protobuf):
-    """第二处：CLI 真入口——缺件态是 3，不是 2（"环境给不了" ≠ "调用方写错"）。"""
-    path = fixture("r4-enum-narrowed-old.pb")
-    code, _, err = run([path, path])
-    assert code == 3
-    assert "protobuf" in err
-
-
 def test_parse_descriptor_set_guard_without_protobuf(no_protobuf):
     """`parsers/proto.parse_descriptor_set` 自己的守门（不经 `detect_format` 时也成立）。"""
     with pytest.raises(CapabilityError) as caught:
@@ -250,10 +293,47 @@ def test_parse_descriptor_set_guard_without_protobuf(no_protobuf):
     assert "pip install protobuf" in str(caught.value)
 
 
-def test_descriptor_parses_without_the_stub():
-    """阳性对照：同一份 fixture 不装桩就必须正常解析——否则上面三条只证明了"桩坏了"。"""
-    pytest.importorskip("google.protobuf")
-    ir = parse(fixture("r4-enum-narrowed-old.pb"))
-    assert isinstance(ir, ContractIR)
-    assert ir.format == "proto"
-    assert ir.name == "Order"
+# ── 负控：缺件态判据不许把"调用方写错"也吞成 3 ─────────────────────────────
+
+
+def test_negative_control_broken_json_without_protobuf(tmp_path, no_protobuf):
+    """能解码、以 `{` 开头但 JSON 非法 → 仍是 2（SchemaParseError）。
+
+    乙案的前置判据只认「`.pb` 后缀」与「不可 UTF-8 解码」两条；一旦放宽成
+    "缺 protobuf 就一律 3"，这条会变红——这正是它要防的越界。
+    """
+    path = tmp_path / "broken.json"
+    path.write_text('{"properties": ', encoding="utf-8")
+    code, _, err = run([str(path), str(path)])
+    assert code == 2
+    assert err
+
+
+def test_negative_control_unknown_text_without_protobuf(tmp_path, no_protobuf):
+    """能解码、像文本、但既非 JSON 也非 proto 文本 → 2（"你给我的东西不对"）。"""
+    path = tmp_path / "notes.txt"
+    path.write_text("这只是一段说明文字，不是 schema。\n", encoding="utf-8")
+    code, _, err = run([str(path), str(path)])
+    assert code == 2
+    assert err
+
+
+def test_negative_control_decodable_garbage_without_protobuf(tmp_path, no_protobuf):
+    """可解码的乱码 + 非 `.pb` 后缀 → 2（不是描述符，也不是"环境给不了"）。"""
+    path = tmp_path / "garbage.bin"
+    path.write_bytes(b"\x00\x01\x02not-a-descriptor")
+    code, _, err = run([str(path), str(path)])
+    assert code == 2
+    assert err
+
+
+def test_negative_control_avsc_and_json_still_dispatch_without_protobuf(tmp_path, no_protobuf):
+    """缺 protobuf **不影响** Avro / JSON Schema 的判别（前置判据只看 `.pb` 与可解码性）。"""
+    avro = tmp_path / "a.avsc"
+    avro.write_text('{"type": "record", "name": "Order", "fields": []}', encoding="utf-8")
+    assert detect_format(str(avro)) == ("avro", "json")
+
+    schema = tmp_path / "a.json"
+    schema.write_text('{"$schema": "https://json-schema.org/draft/2020-12/schema"}', encoding="utf-8")
+    assert detect_format(str(schema)) == ("jsonschema", "json")
+

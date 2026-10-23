@@ -149,3 +149,6 @@ report-out/
 
 # 本地私有资料
 _private/
+
+# 二次迭代交接物（诊断/路线/执行记录；与 _private/ 同族，不入仓）
+update/

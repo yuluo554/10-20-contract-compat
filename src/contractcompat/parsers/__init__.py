@@ -9,7 +9,13 @@
      （只判"能解析"不够：任意一两字节的残缺输入也可能解析成功，那种误判会
      把一段乱码说成"合法的 Protobuf 描述符"）
   3. UTF-8 文本且含 ``syntax = "proto3";`` 一类特征 → proto 文本（需 protoc）
-  4. 其它 → UsageError（退出码 2）；含 NUL 且判别不出 → 也是 2（二进制垃圾不是 schema）
+  4. 其它 → UsageError（退出码 2）
+
+**缺 protobuf 时的分流（退出码 3）**：往返校验需要 ``descriptor_pb2``，装不了就等于
+"判不了这份输入是不是描述符"。此时只有"看起来像文本"才排得掉描述符；``.pb`` 后缀
+即使内容可解码也判不了（用户明说它是描述符产物）。判不了就是 3 —— **不允许**用
+"NUL 字节"这种巧合来猜：多数 ``FileDescriptorSet`` 不含 NUL，用 NUL 判会把 8/10 对
+合法夹具说成"你写错了"（D1）。
 
 判别顺序把 JSON 放最前、描述符放 proto 文本前：描述符是二进制，而 `.pb` 的字节
 **不保证**含 NUL（实测最小的 ``FileDescriptorSet`` 全是可打印 ASCII）——
@@ -39,9 +45,22 @@ def _read_text(raw):
         return None
 
 
-def _looks_binary(raw):
-    """NUL 字节是**快速**的二进制提示，但**不是**充分条件（描述符可以不含 NUL）。"""
-    return b"\x00" in raw[:4096]
+def _is_undecodable(raw):
+    """读不出 UTF-8 文本 ⇒ 一定不是 JSON / Avro 文本 / proto 源码。
+
+    缺 protobuf 时这条是"排得掉描述符"的**唯一**可靠依据（往返校验缺席时，
+    可解码的字节仍可能是描述符，不可解码的字节则必是二进制）。
+    """
+    return _read_text(raw) is None
+
+
+def _declared_descriptor(path):
+    """扩展名是 ``.pb`` ⇒ 用户明说这是 ``protoc --descriptor_set_out`` 的产物。
+
+    只看扩展名在**正常态**下不作数（判别按内容，见模块头）；它只在缺 protobuf、
+    内容也判不出来时作为"不许把它当文本错误"的依据。
+    """
+    return os.path.splitext(path)[1].lower() == ".pb"
 
 
 def _protobuf_module():
@@ -92,19 +111,25 @@ def detect_format(path):
 
     text = _read_text(raw)
 
-    # ① 描述符先判：**往返校验**比"首字符像不像 JSON"强得多。
-    #    反例（实测踩到）：某些描述符序列化后以 ``\n[`` 开头，JSON 优先会把它们
-    #    判成"非法 JSON"并报退出码 2——一个合法描述符被说成"你写错了"。
-    descriptor = looks_like_descriptor_set(raw)
-    if descriptor is True:
-        return "proto", "descriptor"
-    if descriptor is None and _looks_binary(raw):
+    # ① 缺 protobuf 的**前置**判据（D1）：往返校验缺席时，"是不是描述符"无从判定。
+    #    此时只要排不掉描述符就必须给 3（环境给不了），而不能给 2（调用方写错）：
+    #      - `.pb` 后缀：用户明说这是 protoc 产物 ⇒ 排不掉，即使内容可解码；
+    #      - 不可 UTF-8 解码：JSON / Avro / proto 文本都不可能是二进制字节 ⇒ 排不掉。
+    #    反例（D1 的形态）：只用 NUL 判 ⇒ 17/20 份合法描述符可按文本走，其中
+    #    14 份落"无法判别"、3 份落"JSON 非法"——全是 2，把"该装 protobuf"说成"你写错了"。
+    if _protobuf_module() is None and (_declared_descriptor(path) or _is_undecodable(raw)):
         raise CapabilityError(
             "输入看起来是二进制描述符，但环境缺 protobuf 无法判别："
             "请 `py -m pip install protobuf` 后重试（退出码 3 的既定语义）"
         )
 
-    # ② JSON
+    # ② 描述符：**往返校验**比"首字符像不像 JSON"强得多。
+    #    反例（实测踩到）：某些描述符序列化后以 ``\n[`` 开头，JSON 优先会把它们
+    #    判成"非法 JSON"并报退出码 2——一个合法描述符被说成"你写错了"。
+    if looks_like_descriptor_set(raw) is True:
+        return "proto", "descriptor"
+
+    # ③ JSON
     if text is not None:
         stripped = text.lstrip()
         if stripped.startswith("{") or stripped.startswith("["):
@@ -126,7 +151,7 @@ def detect_format(path):
     if text is None:
         raise UsageError("输入不是 UTF-8 文本，也不是可识别的 FileDescriptorSet: %s" % path)
 
-    # ③ proto 源码文本：本工具不解析，只识别出来以便给出准确的退出码 3
+    # ④ proto 源码文本：本工具不解析，只识别出来以便给出准确的退出码 3
     if any(hint in text[:4000] for hint in _PROTO_HINTS):
         return "proto", "text"
 

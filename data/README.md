@@ -2,6 +2,7 @@
 
 > 本文件是**数值口径的唯一权威**。plan/01、plan/03 与代码里的公式/枚举均为便于阅读的摘录；若冲突，以本文件 §四 为准，并在同一提交内修正摘录。
 > **基准日：2026-10-20。** 星数、push 时间、issue/PR 检索 total_count 均为**基准日快照**（会漂移），只用于选型与文档说明，**不得写进代码常量或断言阈值**。
+> **复核承诺：`next_review: 2026-11-20`**（`review_interval: monthly`）。每次复核更新三项：① 已占位工具的**星数**；② 竞品**格式支持范围**（尤其 `contract-witness` 是否新增格式）；③ 检索式 **`total_count`**。复核只改本文件的快照值与基准日，**不改判定语汇**。
 
 ## 一、依据查证记录（三态：✅ 已核对原文 / ⬜ 待核对或软论据）
 
@@ -207,7 +208,7 @@
 | `0` | 该 policy 下无 breaking 项 | `--policy none`；或全部命中为 `non-breaking`；或仅有 `runtime-dependent` 且给了 `--ignore-runtime-dependent` |
 | `1` | 有 breaking 项 | 存在 `breaking`；或存在 `runtime-dependent` 且处于默认严格档 |
 | `2` | 用法 / 输入错误 | 未知 policy；`*-transitive` 缺 `--history`；schema 文件解析失败（含非法 JSON / 非法 `FileDescriptorSet`）；`--history` 版本数 0 |
-| `3` | 环境或能力不满足 | 需要 `protoc` 而未安装；`--require-complete-ir` 且存在 `ir_unsupported`；输入格式不受支持 |
+| `3` | 环境或能力不满足 | 需要 `protoc` 而未安装；输入是 `FileDescriptorSet`（`.pb`）或无法按 UTF-8 解码的字节，但环境缺 `protobuf` 无法判别——此时**不猜"调用方写错了"**；`--require-complete-ir` 且存在 `ir_unsupported`；输入格式不受支持 |
 
 退出码**只有这四个值**，不新增、不复用。`2` 与 `3` 的区别是：`2` 是调用方写错，`3` 是环境给不了。
 
